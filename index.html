@@ -125,11 +125,11 @@ header {
 
 .day-next {
     flex: 0 0 42px;
-    transition: opacity .2s ease;
 }
 
-.day-next.disabled {
-    opacity: .25;
+.day-next:disabled {
+    opacity: .35;
+    cursor: default;
 }
 
 /* =========================================================
@@ -820,7 +820,7 @@ header {
     <div class="header-right">
 
         <div class="status">
-            Spotpris Time inkl. moms
+            Spotpris inkl. moms
         </div>
 
     </div>
@@ -1202,37 +1202,29 @@ function updateDayButtons() {
             "tomorrowButton"
         );
 
-    const nextButton =
-        document.getElementById(
-            "nextDayButton"
-        );
-
-
-    /*
-       I DAG er altid sin egen knap.
-       I MORGEN er altid synlig og vælges
-       kun når activeDayIndex === 1.
-
-       Når vi går videre med >, ændres
-       teksten på I MORGEN-knappen til
-       den aktuelle ugedag.
-    */
-
     todayButton.textContent =
         "I dag";
 
-    if (activeDayIndex <= 1) {
+    /*
+       I morgen-knappen forbliver
+       synlig hele tiden.
+
+       Når der steppes videre med >
+       ændres teksten til den valgte
+       dag.
+    */
+
+    if (activeDayIndex === 0) {
 
         tomorrowButton.textContent =
             "I morgen";
 
-    }
-    else {
+    } else {
 
         tomorrowButton.textContent =
             getDayLabel(
                 activeDayIndex
-            ) || "I morgen";
+            );
     }
 
 
@@ -1247,16 +1239,19 @@ function updateDayButtons() {
     );
 
 
+    const nextButton =
+        document.getElementById(
+            "nextDayButton"
+        );
+
     /*
        Pilen forsvinder aldrig.
-       Den tones blot ud ved dag 6.
+       Den tones blot ud på dag 6.
     */
 
-    nextButton.classList.toggle(
-        "disabled",
+    nextButton.disabled =
         activeDayIndex >=
-            MAX_DAYS_FORWARD
-    );
+        MAX_DAYS_FORWARD;
 }
 
 
@@ -2120,25 +2115,15 @@ function updateHeaderText() {
         );
 
 
+    const label =
+        getDayLabel(
+            activeDayIndex
+        );
+
+
     const actual =
         isActualDay(day);
 
-
-    /*
-       DAG 0:
-       Timepriser
-
-       DAG 1:
-       Timepriser i morgen (Prognose)
-
-       DAG 2+:
-       Timepriser onsdag (Prognose)
-       osv.
-
-       Bemærk:
-       Knappen viser stadig "I morgen"
-       med stort I.
-    */
 
     if (
         activeDayIndex === 0
@@ -2149,52 +2134,21 @@ function updateHeaderText() {
 
     }
     else if (
-        activeDayIndex === 1
+        actual
     ) {
 
-        if (actual) {
-
-            title.innerHTML =
-                "Timepriser i morgen";
-
-        }
-        else {
-
-            title.innerHTML =
-                'Timepriser i morgen ' +
-                '<span class="forecast-text">' +
-                '(Prognose)' +
-                '</span>';
-        }
+        title.innerHTML =
+            "Timepriser";
 
     }
     else {
 
-        const weekday =
-            selectedDate.toLocaleDateString(
-                "da-DK",
-                {
-                    weekday: "long"
-                }
-            );
-
-
-        if (actual) {
-
-            title.innerHTML =
-                "Timepriser " +
-                weekday;
-
-        }
-        else {
-
-            title.innerHTML =
-                "Timepriser " +
-                weekday +
-                ' <span class="forecast-text">' +
-                '(Prognose)' +
-                '</span>';
-        }
+        title.innerHTML =
+            "Timepriser " +
+            label.toLowerCase() +
+            ' <span class="forecast-text">' +
+            "(Prognose)" +
+            "</span>";
     }
 
 
@@ -2790,23 +2744,23 @@ document
         function() {
 
             /*
-               Når vi allerede står på en senere dag,
-               skal knappen fortsat repræsentere
-               den valgte dag.
+               Når knappen viser I morgen,
+               vælger den dag 1.
+
+               Når vi er længere fremme,
+               fungerer samme knap som den
+               aktuelle valgte dag.
             */
 
-            if (
-                activeDayIndex >= 1
-            ) {
+            if (activeDayIndex === 0) {
+
+                selectDay(1);
+
+            } else {
 
                 selectDay(
                     activeDayIndex
                 );
-
-            }
-            else {
-
-                selectDay(1);
             }
         }
     );
