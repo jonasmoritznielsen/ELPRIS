@@ -2,6 +2,17 @@
 <html lang="da">
 <head>
 <meta charset="UTF-8">
+
+<meta
+    http-equiv="Cache-Control"
+    content="no-cache, no-store, must-revalidate">
+<meta
+    http-equiv="Pragma"
+    content="no-cache">
+<meta
+    http-equiv="Expires"
+    content="0">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Elpris DK1</title>
 
@@ -125,11 +136,6 @@ header {
 
 .day-next {
     flex: 0 0 42px;
-}
-
-.day-next:disabled {
-    opacity: .35;
-    cursor: default;
 }
 
 /* =========================================================
@@ -1205,27 +1211,11 @@ function updateDayButtons() {
     todayButton.textContent =
         "I dag";
 
-    /*
-       I morgen-knappen forbliver
-       synlig hele tiden.
-
-       Når der steppes videre med >
-       ændres teksten til den valgte
-       dag.
-    */
-
-    if (activeDayIndex === 0) {
-
-        tomorrowButton.textContent =
-            "I morgen";
-
-    } else {
-
-        tomorrowButton.textContent =
-            getDayLabel(
-                activeDayIndex
-            );
-    }
+    tomorrowButton.textContent =
+        getDayLabel(
+            1
+        ) ||
+        "I morgen";
 
 
     todayButton.classList.toggle(
@@ -1244,14 +1234,11 @@ function updateDayButtons() {
             "nextDayButton"
         );
 
-    /*
-       Pilen forsvinder aldrig.
-       Den tones blot ud på dag 6.
-    */
-
-    nextButton.disabled =
+    nextButton.style.display =
         activeDayIndex >=
-        MAX_DAYS_FORWARD;
+            MAX_DAYS_FORWARD
+            ? "none"
+            : "block";
 }
 
 
@@ -2145,7 +2132,7 @@ function updateHeaderText() {
 
         title.innerHTML =
             "Timepriser " +
-            label.toLowerCase() +
+            label +
             ' <span class="forecast-text">' +
             "(Prognose)" +
             "</span>";
@@ -2743,25 +2730,7 @@ document
         "click",
         function() {
 
-            /*
-               Når knappen viser I morgen,
-               vælger den dag 1.
-
-               Når vi er længere fremme,
-               fungerer samme knap som den
-               aktuelle valgte dag.
-            */
-
-            if (activeDayIndex === 0) {
-
-                selectDay(1);
-
-            } else {
-
-                selectDay(
-                    activeDayIndex
-                );
-            }
+            selectDay(1);
         }
     );
 
