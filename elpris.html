@@ -1,0 +1,3307 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elpris DK1</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    background: #07111f;
+}
+
+body {
+    color: #f8fafc;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "Segoe UI",
+        sans-serif;
+}
+
+.app {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-top: calc(env(safe-area-inset-top) + 12px);
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.logo {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.35px;
+    white-space: nowrap;
+}
+
+.logo .bolt {
+    color: #38e6a0;
+    font-size: 20px;
+    margin-right: 3px;
+}
+
+.logo .price {
+    font-weight: 750;
+    color: #ffffff;
+}
+
+.area {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #8392a8;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 10px;
+}
+
+.status {
+    padding: 8px 11px;
+    border-radius: 20px;
+    background: #132238;
+    border: 1px solid #233651;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   DAGS VÆLGER
+   ========================================================= */
+
+.days {
+    display: flex;
+    gap: 5px;
+    margin-top: 14px;
+    padding: 4px;
+    background: #101d30;
+    border: 1px solid #20314a;
+    border-radius: 15px;
+}
+
+.day {
+    flex: 1;
+    padding: 10px;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: #8493a9;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.day.active {
+    background: #243852;
+    color: white;
+}
+
+.day-arrow {
+    flex: 0 0 42px;
+    padding: 10px 8px;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: #8493a9;
+    font-weight: 800;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.day-arrow:hover {
+    background: #1b2c44;
+    color: white;
+}
+
+.day-arrow:disabled {
+    opacity: .25;
+    cursor: default;
+}
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.card {
+    margin-top: 14px;
+    padding: 17px;
+    background: #101c2e;
+    border: 1px solid #20314a;
+    border-radius: 22px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.card-title {
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.card-title .forecast-text {
+    color: #ff4d4d;
+    animation: forecastPulse 3.2s ease-in-out infinite;
+}
+
+@keyframes forecastPulse {
+    0% {
+        filter: saturate(0.75);
+    }
+
+    50% {
+        filter: saturate(1.45);
+    }
+
+    100% {
+        filter: saturate(0.75);
+    }
+}
+
+.card-date {
+    color: #728198;
+    font-size: 11px;
+}
+
+/* =========================================================
+   GRAF
+   ========================================================= */
+
+.chart {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    overflow: visible;
+    touch-action: none;
+}
+
+.chart-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255,255,255,.16);
+    pointer-events: none;
+    z-index: 120;
+}
+
+.zero-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255,255,255,.42);
+    pointer-events: none;
+    z-index: 122;
+}
+
+/* =========================================================
+   SØJLER
+   ========================================================= */
+
+.bar {
+    position: absolute;
+    width: calc(4.1666666667% - 3px);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    touch-action: none;
+
+    transition:
+        filter .15s ease,
+        opacity .15s ease,
+        box-shadow .15s ease;
+
+    z-index: 20;
+}
+
+.bar.blue {
+    background:
+        linear-gradient(
+            to top,
+            #2563eb,
+            #60a5fa
+        );
+}
+
+.bar.cheap {
+    background:
+        linear-gradient(
+            to top,
+            #059669,
+            #6ee7b7
+        );
+}
+
+.bar.warning {
+    background:
+        linear-gradient(
+            to top,
+            #d97706,
+            #fbbf24
+        );
+}
+
+.bar.expensive {
+    background:
+        linear-gradient(
+            to top,
+            #dc2626,
+            #fb7185
+        );
+}
+
+.bar.negative {
+    background:
+        linear-gradient(
+            to bottom,
+            #7c3aed,
+            #c084fc
+        );
+}
+
+.bar.passed {
+    opacity: .38;
+}
+
+/* =========================================================
+   PROGNOSE
+   ========================================================= */
+
+.bar.forecast.blue {
+    background:
+        linear-gradient(
+            to top,
+            #315fa8,
+            #7196c8
+        );
+}
+
+.bar.forecast.cheap {
+    background:
+        linear-gradient(
+            to top,
+            #147a61,
+            #71bda6
+        );
+}
+
+.bar.forecast.warning {
+    background:
+        linear-gradient(
+            to top,
+            #a87522,
+            #c7a354
+        );
+}
+
+.bar.forecast.expensive {
+    background:
+        linear-gradient(
+            to top,
+            #a9434a,
+            #c56f78
+        );
+}
+
+.bar.forecast.negative {
+    background:
+        linear-gradient(
+            to bottom,
+            #62409b,
+            #9472c2
+        );
+}
+
+.bar.forecast::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    border-radius: inherit;
+
+    pointer-events: none;
+
+    z-index: 50;
+
+    background:
+        repeating-linear-gradient(
+            135deg,
+            rgba(255,255,255,.18) 0px,
+            rgba(255,255,255,.18) 3px,
+            rgba(255,255,255,0) 3px,
+            rgba(255,255,255,0) 10px
+        );
+}
+
+.bar.forecast {
+    box-shadow:
+        inset 0 0 0 1px
+        rgba(255,255,255,.20);
+}
+
+.bar.current {
+    opacity: 1;
+
+    box-shadow:
+        inset 0 0 0 2px
+        rgba(255,255,255,.9),
+        0 0 10px
+        rgba(255,255,255,.25);
+}
+
+/* =========================================================
+   VALGTE SØJLER
+   ========================================================= */
+
+.bar.four-hour-selected {
+    z-index: 90;
+    opacity: 1;
+
+    filter: brightness(1.08);
+
+    box-shadow:
+        inset 0 0 0 2px
+        rgba(255,255,255,.85),
+        0 0 12px
+        rgba(255,255,255,.22);
+}
+
+.bar.single-hour-selected {
+    z-index: 95;
+    opacity: 1;
+
+    filter: brightness(1.12);
+
+    box-shadow:
+        inset 0 0 0 2px
+        rgba(255,255,255,.95),
+        0 0 14px
+        rgba(255,255,255,.30);
+}
+
+.chart.selection-mode .bar:not(.four-hour-selected):not(.single-hour-selected) {
+    opacity: .38;
+}
+
+.chart.selection-mode .bar.four-hour-selected,
+.chart.selection-mode .bar.single-hour-selected {
+    opacity: 1;
+}
+
+/* =========================================================
+   PRISBOKS
+   ========================================================= */
+
+.selected-price {
+    position: absolute;
+
+    min-width: 52px;
+
+    padding: 5px 7px;
+
+    border-radius: 8px;
+
+    background: rgba(8,18,32,.97);
+
+    border:
+        1px solid
+        rgba(255,255,255,.16);
+
+    box-shadow:
+        0 5px 16px
+        rgba(0,0,0,.35);
+
+    color: white;
+
+    font-size: 10px;
+    line-height: 1.2;
+    font-weight: 750;
+
+    font-variant-numeric:
+        tabular-nums;
+
+    white-space: nowrap;
+    text-align: center;
+
+    pointer-events: none;
+    z-index: 200;
+}
+
+.selected-price .price-hour {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    color: #d5deea;
+}
+
+.selected-price .price-value {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+    color: #ffffff;
+}
+
+.positive-price,
+.negative-price {
+    transform:
+        translateX(-50%)
+        translateY(-100%);
+}
+
+.selected-price::after {
+    content: "";
+
+    position: absolute;
+    left: 50%;
+
+    width: 7px;
+    height: 7px;
+
+    transform:
+        translateX(-50%)
+        rotate(45deg);
+
+    background:
+        rgba(8,18,32,.97);
+
+    bottom: -4px;
+
+    border-right:
+        1px solid
+        rgba(255,255,255,.16);
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.16);
+}
+
+/* =========================================================
+   X-AKSE
+   ========================================================= */
+
+.axis {
+    display: flex;
+    justify-content: space-between;
+
+    padding-top: 8px;
+
+    color: #f1f5f9;
+
+    font-size: 9px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   STATISTIK
+   ========================================================= */
+
+.stats {
+    display: grid;
+
+    grid-template-columns:
+        76px
+        76px
+        minmax(0, 1fr);
+
+    gap: 7px;
+
+    margin-top: 15px;
+}
+
+.stat {
+    min-width: 0;
+
+    padding: 12px 8px;
+
+    border-radius: 14px;
+
+    background: #16243a;
+
+    cursor: pointer;
+
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .12s ease;
+}
+
+.stat:active {
+    transform: scale(.985);
+}
+
+.stat-label {
+    font-size: 10px;
+    color: #f2f5fa;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+.stat-value {
+    margin-top: 5px;
+
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+
+    font-variant-numeric:
+        tabular-nums;
+
+    white-space: nowrap;
+}
+
+.stat.price-negative {
+    background: rgba(192, 132, 252, .42);
+    border: 1px solid rgba(192, 132, 252, .38);
+}
+
+.stat.price-blue {
+    background: rgba(96, 165, 250, .42);
+    border: 1px solid rgba(96, 165, 250, .38);
+}
+
+.stat.price-cheap {
+    background: rgba(110, 231, 183, .42);
+    border: 1px solid rgba(110, 231, 183, .38);
+}
+
+.stat.price-warning {
+    background: rgba(251, 191, 36, .42);
+    border: 1px solid rgba(251, 191, 36, .38);
+}
+
+.stat.price-expensive {
+    background: rgba(251, 113, 133, .42);
+    border: 1px solid rgba(251, 113, 133, .38);
+}
+
+/* =========================================================
+   KWH
+   ========================================================= */
+
+.stat.kwh-red {
+    background: rgba(251, 113, 133, .42);
+    border: 1px solid rgba(251, 113, 133, .38);
+}
+
+.stat.kwh-yellow {
+    background: rgba(251, 191, 36, .42);
+    border: 1px solid rgba(251, 191, 36, .38);
+}
+
+.stat.kwh-green {
+    background: rgba(110, 231, 183, .42);
+    border: 1px solid rgba(110, 231, 183, .38);
+}
+
+.stat.kwh-blue {
+    background: rgba(96, 165, 250, .42);
+    border: 1px solid rgba(96, 165, 250, .38);
+}
+
+.stat.kwh-purple {
+    background: rgba(192, 132, 252, .42);
+    border: 1px solid rgba(192, 132, 252, .38);
+}
+
+.stat.selected-stat {
+    transform: translateY(-2px);
+
+    border-color:
+        rgba(255,255,255,.75);
+
+    box-shadow:
+        inset 0 0 0 1px
+        rgba(255,255,255,.22),
+
+        0 0 0 1px
+        rgba(255,255,255,.10),
+
+        0 5px 16px
+        rgba(0,0,0,.28);
+}
+
+.stat.selected-stat .stat-label {
+    color: #ffffff;
+
+    text-shadow:
+        0 0 6px
+        rgba(255,255,255,.25);
+}
+
+.stat.selected-stat .stat-value {
+    color: #ffffff;
+}
+
+.stat-four-hours {
+    text-align: left;
+}
+
+.stat-four-hours .stat-label {
+    white-space: nowrap;
+    color: #f2f5fa;
+    font-size: 10px;
+}
+
+.stat-four-hours .stat-value {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.kwh-stat {
+    grid-column: 1 / -1;
+    margin-top: 0;
+}
+
+.kwh-stat .stat-label {
+    font-size: 10px;
+    color: #f2f5fa;
+    white-space: nowrap;
+}
+
+.kwh-stat .stat-value {
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.kwh-subtext {
+    margin-top: 3px;
+    color: rgba(255,255,255,.62);
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   FARVEFORKLARING
+   ========================================================= */
+
+.color-legend {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 6px;
+
+    margin-top: 9px;
+    padding: 8px 7px;
+
+    border-radius: 10px;
+
+    background: rgba(255,255,255,.035);
+    border: 1px solid rgba(255,255,255,.06);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+
+    min-width: 0;
+
+    color: rgba(255,255,255,.82);
+
+    font-size: 9px;
+    font-weight: 650;
+
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+
+    flex: 0 0 10px;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 0 1px
+        rgba(255,255,255,.12);
+}
+
+.legend-red {
+    background: #fb7185;
+}
+
+.legend-yellow {
+    background: #fbbf24;
+}
+
+.legend-green {
+    background: #6ee7b7;
+}
+
+.legend-blue {
+    background: #60a5fa;
+}
+
+.legend-purple {
+    background: #c084fc;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+    margin-top: 14px;
+
+    text-align: center;
+
+    color: #526177;
+
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   SMÅ TELEFONER
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+    .app {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .logo {
+        font-size: 15px;
+    }
+
+    .status {
+        padding-left: 9px;
+        padding-right: 9px;
+    }
+
+    .stats {
+        grid-template-columns:
+            70px
+            70px
+            minmax(0, 1fr);
+
+        gap: 5px;
+    }
+
+    .stat {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
+    .stat-value {
+        font-size: 12px;
+    }
+
+    .stat-four-hours .stat-value {
+        font-size: 12px;
+    }
+
+    .stat-four-hours .stat-label {
+        font-size: 9px;
+    }
+
+    .color-legend {
+        gap: 3px;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .legend-item {
+        gap: 3px;
+        font-size: 8px;
+    }
+
+    .legend-dot {
+        width: 9px;
+        height: 9px;
+        flex-basis: 9px;
+    }
+
+    .day-arrow {
+        flex-basis: 36px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+
+    <div>
+
+        <div class="logo">
+            <span class="bolt">⚡</span>
+            <span id="currentPriceHeader">
+                ELPRIS: -- øre pr. kWh
+            </span>
+        </div>
+
+        <div class="area">
+            DK1 · Vestdanmark
+        </div>
+
+    </div>
+
+    <div class="header-right">
+
+        <div class="status">
+            Spotpris Time inkl. moms
+        </div>
+
+    </div>
+
+</header>
+
+
+<div class="days">
+
+    <button
+        class="day active"
+        id="todayButton"
+        type="button">
+        I dag
+    </button>
+
+    <button
+        class="day"
+        id="tomorrowButton"
+        type="button">
+        I morgen
+    </button>
+
+    <button
+        class="day-arrow"
+        id="nextDayButton"
+        type="button"
+        aria-label="Næste dag">
+        &gt;
+    </button>
+
+</div>
+
+
+<section class="card">
+
+    <div class="card-header">
+
+        <div
+            class="card-title"
+            id="chartTitle">
+            Timepriser
+        </div>
+
+        <div
+            class="card-date"
+            id="chartDate">
+        </div>
+
+    </div>
+
+
+    <div
+        class="chart"
+        id="chart">
+    </div>
+
+
+    <div class="axis">
+        <span>00</span>
+        <span>06</span>
+        <span>12</span>
+        <span>18</span>
+        <span>24</span>
+    </div>
+
+
+    <div class="stats">
+
+        <div
+            class="stat"
+            id="minStat">
+
+            <div class="stat-label" id="minLabel">
+                LAV
+            </div>
+
+            <div
+                class="stat-value"
+                id="minPrice">
+            </div>
+
+        </div>
+
+
+        <div
+            class="stat"
+            id="maxStat">
+
+            <div class="stat-label" id="maxLabel">
+                HØJ
+            </div>
+
+            <div
+                class="stat-value"
+                id="maxPrice">
+            </div>
+
+        </div>
+
+
+        <div
+            class="stat stat-four-hours"
+            id="fourHourStat">
+
+            <div class="stat-label">
+                BILLIGSTE 4 TIMER
+            </div>
+
+            <div
+                class="stat-value"
+                id="fourHourInterval">
+            </div>
+
+        </div>
+
+
+        <div
+            class="stat kwh-stat"
+            id="kwhStat">
+
+            <div class="stat-label">
+                KWH MAX 25 ØRE
+            </div>
+
+            <div
+                class="stat-value"
+                id="kwhUnder25">
+            </div>
+
+            <div class="kwh-subtext"></div>
+
+        </div>
+
+    </div>
+
+
+    <div class="color-legend">
+
+        <div class="legend-item">
+            <span class="legend-dot legend-red"></span>
+            <span>1,50 kr.</span>
+        </div>
+
+        <div class="legend-item">
+            <span class="legend-dot legend-yellow"></span>
+            <span>50 øre</span>
+        </div>
+
+        <div class="legend-item">
+            <span class="legend-dot legend-green"></span>
+            <span>25 øre</span>
+        </div>
+
+        <div class="legend-item">
+            <span class="legend-dot legend-blue"></span>
+            <span>0 øre</span>
+        </div>
+
+        <div class="legend-item">
+            <span class="legend-dot legend-purple"></span>
+            <span>Negativ</span>
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer>
+    DK1 · Elpriser.org<br>
+    Privat elpris-dashboard
+</footer>
+
+</div>
+
+
+<script>
+
+const API_BASE =
+    "https://elpriser.org/api";
+
+const API_MODE =
+    "spot_inkl";
+
+const API_AREA =
+    "DK1";
+
+/*
+   API'et returnerer:
+   days[0] = i dag
+   days[1] = i morgen
+   days[2] = dag + 2
+   osv.
+
+   Vi viser maksimalt 6 dage frem.
+*/
+const MAX_DAY_INDEX = 6;
+
+
+/* =========================================================
+   DATA
+   ========================================================= */
+
+let forecastDays = [];
+
+let activeDayIndex = 0;
+
+let currentHour =
+    new Date().getHours();
+
+let currentPrice = 0;
+
+let selectionMode = null;
+
+let refreshTimer = null;
+
+
+/* =========================================================
+   API
+   ========================================================= */
+
+async function loadForecastData() {
+
+    const response =
+        await fetch(
+            API_BASE +
+            "/forecast?area=" +
+            API_AREA +
+            "&mode=" +
+            API_MODE +
+            "&_=" +
+            Date.now()
+        );
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Kunne ikke hente prognosen"
+        );
+    }
+
+    const data =
+        await response.json();
+
+    if (
+        !data ||
+        !Array.isArray(data.days)
+    ) {
+
+        throw new Error(
+            "API returnerede ingen dagsdata"
+        );
+    }
+
+    return data.days;
+}
+
+
+/* =========================================================
+   DAGSDATA
+   ========================================================= */
+
+function normalizeDay(day) {
+
+    if (
+        !day ||
+        !Array.isArray(day.prices)
+    ) {
+
+        return null;
+    }
+
+    const prices =
+        day.prices.map(
+            item => {
+
+                if (
+                    typeof item === "number"
+                ) {
+                    return item * 100;
+                }
+
+                if (
+                    typeof item.price === "number"
+                ) {
+                    return item.price * 100;
+                }
+
+                if (
+                    typeof item.value === "number"
+                ) {
+                    return item.value * 100;
+                }
+
+                return NaN;
+            }
+        );
+
+
+    if (
+        prices.length < 24 ||
+        prices
+            .slice(0, 24)
+            .some(
+                value =>
+                    !Number.isFinite(value)
+            )
+    ) {
+
+        return null;
+    }
+
+
+    return {
+        date:
+            day.date || null,
+
+        type:
+            String(
+                day.type || ""
+            ).toLowerCase(),
+
+        weekday:
+            day.weekday ?? null,
+
+        prices:
+            prices.slice(0, 24)
+    };
+}
+
+
+function getDay(index) {
+
+    if (
+        index < 0 ||
+        index >= forecastDays.length
+    ) {
+
+        return null;
+    }
+
+    return forecastDays[index];
+}
+
+
+function getActiveDay() {
+
+    return getDay(
+        activeDayIndex
+    );
+}
+
+
+/* =========================================================
+   REEL DATA / PROGNOSE
+   ========================================================= */
+
+function isForecastDay(day) {
+
+    if (!day) {
+        return false;
+    }
+
+    /*
+       API'et bruger type:
+       "actual" for reel data
+       "forecast" for ML-prognose.
+
+       Vi bruger derfor ikke dagnummeret
+       til at afgøre om data er prognose.
+    */
+    return day.type === "forecast";
+}
+
+
+function isActualDay(day) {
+
+    if (!day) {
+        return false;
+    }
+
+    return day.type === "actual";
+}
+
+
+/* =========================================================
+   AKTUEL ELPRIS
+   ========================================================= */
+
+function updateCurrentPrice() {
+
+    /*
+       Den aktuelle pris kommer ALTID fra
+       days[0] — uanset hvilken dag grafen viser.
+    */
+
+    const today =
+        getDay(0);
+
+    if (
+        today &&
+        today.prices &&
+        today.prices.length === 24
+    ) {
+
+        currentHour =
+            new Date().getHours();
+
+        currentPrice =
+            today.prices[
+                currentHour
+            ];
+
+    }
+}
+
+
+/* =========================================================
+   FORMAT
+   ========================================================= */
+
+function formatHeaderPrice(value) {
+
+    if (!Number.isFinite(value)) {
+        return "--";
+    }
+
+    const rounded =
+        Math.round(value);
+
+    if (
+        Math.abs(rounded) >= 100
+    ) {
+
+        return (
+            (rounded / 100)
+                .toLocaleString(
+                    "da-DK",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )
+            + " kr"
+        );
+    }
+
+    return rounded + " øre";
+}
+
+
+function formatStatPrice(value) {
+
+    if (!Number.isFinite(value)) {
+        return "--";
+    }
+
+    const rounded =
+        Math.round(value);
+
+    if (
+        Math.abs(rounded) >= 100
+    ) {
+
+        return (
+            (rounded / 100)
+                .toLocaleString(
+                    "da-DK",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )
+            + " kr"
+        );
+    }
+
+    return rounded + " øre";
+}
+
+
+function formatHour(hour) {
+
+    return String(hour)
+        .padStart(2, "0") + ":00";
+}
+
+
+/* =========================================================
+   DATO / UGEDAG
+   ========================================================= */
+
+const weekdayNames = [
+    "Søndag",
+    "Mandag",
+    "Tirsdag",
+    "Onsdag",
+    "Torsdag",
+    "Fredag",
+    "Lørdag"
+];
+
+
+function getDateFromDay(day, index) {
+
+    if (
+        day &&
+        day.date
+    ) {
+
+        const date =
+            new Date(
+                day.date +
+                "T00:00:00"
+            );
+
+        if (
+            !Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return date;
+        }
+    }
+
+
+    const date =
+        new Date();
+
+    date.setDate(
+        date.getDate() + index
+    );
+
+    return date;
+}
+
+
+function getDayName(day, index) {
+
+    const date =
+        getDateFromDay(
+            day,
+            index
+        );
+
+    return weekdayNames[
+        date.getDay()
+    ];
+}
+
+
+function formatDate(day, index) {
+
+    const date =
+        getDateFromDay(
+            day,
+            index
+        );
+
+    return date.toLocaleDateString(
+        "da-DK",
+        {
+            day: "numeric",
+            month: "long"
+        }
+    );
+}
+
+
+/* =========================================================
+   DAGSKNAP
+   ========================================================= */
+
+function updateDayButtons() {
+
+    const todayButton =
+        document.getElementById(
+            "todayButton"
+        );
+
+    const tomorrowButton =
+        document.getElementById(
+            "tomorrowButton"
+        );
+
+    const nextDayButton =
+        document.getElementById(
+            "nextDayButton"
+        );
+
+
+    /*
+       Venstre knap er altid "I dag".
+       Den er kun aktiv ved dag 0.
+    */
+
+    todayButton.textContent =
+        "I dag";
+
+    todayButton.classList.toggle(
+        "active",
+        activeDayIndex === 0
+    );
+
+
+    /*
+       Højre knap er altid en knap.
+       Ved dag 1 hedder den "I morgen".
+       Fra dag 2 og frem vises ugedagen.
+    */
+
+    if (
+        activeDayIndex === 0 ||
+        activeDayIndex === 1
+    ) {
+
+        tomorrowButton.textContent =
+            "I morgen";
+
+    }
+    else {
+
+        const day =
+            getDay(
+                activeDayIndex
+            );
+
+        tomorrowButton.textContent =
+            getDayName(
+                day,
+                activeDayIndex
+            );
+    }
+
+
+    tomorrowButton.classList.toggle(
+        "active",
+        activeDayIndex >= 1
+    );
+
+
+    /*
+       Pilen kan bruges fra dag 1 og frem.
+       På dag 0 fører den til i morgen.
+    */
+
+    nextDayButton.disabled =
+        activeDayIndex >=
+        Math.min(
+            MAX_DAY_INDEX,
+            forecastDays.length - 1
+        );
+}
+
+
+/* =========================================================
+   SKALA
+   ========================================================= */
+
+function getScale() {
+
+    const allPrices =
+        forecastDays
+            .flatMap(
+                day =>
+                    day &&
+                    Array.isArray(
+                        day.prices
+                    )
+                        ? day.prices
+                        : []
+            );
+
+    const validPrices =
+        allPrices.filter(
+            value =>
+                Number.isFinite(value)
+        );
+
+    const minimum =
+        validPrices.length
+            ? Math.min(
+                ...validPrices
+            )
+            : 0;
+
+    const maximum =
+        validPrices.length
+            ? Math.max(
+                ...validPrices
+            )
+            : 25;
+
+    const negative =
+        minimum < 0
+            ? Math.max(
+                25,
+                Math.ceil(
+                    Math.abs(minimum) /
+                    25
+                ) * 25
+            )
+            : 0;
+
+    const positive =
+        Math.max(
+            25,
+            Math.ceil(
+                maximum / 25
+            ) * 25
+        );
+
+    return {
+        minimum,
+        maximum,
+        negative,
+        positive,
+        total:
+            negative +
+            positive
+    };
+}
+
+
+/* =========================================================
+   BILLIGSTE 4 TIMER
+   ========================================================= */
+
+function findCheapestFourHours(
+    prices
+) {
+
+    let bestStart = 0;
+    let bestTotal = Infinity;
+
+    for (
+        let start = 0;
+        start <= prices.length - 4;
+        start++
+    ) {
+
+        const total =
+            prices[start] +
+            prices[start + 1] +
+            prices[start + 2] +
+            prices[start + 3];
+
+        if (
+            total < bestTotal
+        ) {
+
+            bestTotal = total;
+            bestStart = start;
+        }
+    }
+
+    return {
+        start: bestStart,
+        end: bestStart + 4,
+        average:
+            bestTotal / 4
+    };
+}
+
+
+/* =========================================================
+   KWH MAX 25 ØRE
+   ========================================================= */
+
+function getHoursUnder25(
+    prices
+) {
+
+    return prices.filter(
+        price =>
+            price <= 25
+    ).length;
+}
+
+
+function calculateKwhUnder25(
+    prices
+) {
+
+    return (
+        getHoursUnder25(prices) *
+        11
+    );
+}
+
+
+function getKwhClass(hours) {
+
+    if (hours === 0) {
+        return "kwh-red";
+    }
+
+    if (hours <= 2) {
+        return "kwh-yellow";
+    }
+
+    if (hours <= 4) {
+        return "kwh-green";
+    }
+
+    if (hours <= 6) {
+        return "kwh-blue";
+    }
+
+    return "kwh-purple";
+}
+
+
+function applyKwhBoxColor(
+    element,
+    hours
+) {
+
+    element.classList.remove(
+        "kwh-red",
+        "kwh-yellow",
+        "kwh-green",
+        "kwh-blue",
+        "kwh-purple"
+    );
+
+    element.classList.add(
+        getKwhClass(hours)
+    );
+}
+
+
+/* =========================================================
+   PRISKLASSE
+   ========================================================= */
+
+function getPriceClass(price) {
+
+    if (price < 0) {
+        return "negative";
+    }
+
+    if (price <= 25) {
+        return "blue";
+    }
+
+    if (price < 50) {
+        return "cheap";
+    }
+
+    if (price <= 150) {
+        return "warning";
+    }
+
+    return "expensive";
+}
+
+
+function applyPriceBoxColor(
+    element,
+    price
+) {
+
+    element.classList.remove(
+        "price-negative",
+        "price-blue",
+        "price-cheap",
+        "price-warning",
+        "price-expensive"
+    );
+
+    element.classList.add(
+        "price-" +
+        getPriceClass(price)
+    );
+}
+
+
+/* =========================================================
+   AKTIV STATISTIK-KASSE
+   ========================================================= */
+
+function updateSelectedStat() {
+
+    document
+        .querySelectorAll(
+            ".selected-stat"
+        )
+        .forEach(
+            element => {
+                element.classList.remove(
+                    "selected-stat"
+                );
+            }
+        );
+
+
+    if (
+        selectionMode === "min"
+    ) {
+
+        document
+            .getElementById(
+                "minStat"
+            )
+            .classList.add(
+                "selected-stat"
+            );
+    }
+
+
+    if (
+        selectionMode === "max"
+    ) {
+
+        document
+            .getElementById(
+                "maxStat"
+            )
+            .classList.add(
+                "selected-stat"
+            );
+    }
+
+
+    if (
+        selectionMode === "four"
+    ) {
+
+        document
+            .getElementById(
+                "fourHourStat"
+            )
+            .classList.add(
+                "selected-stat"
+            );
+    }
+
+
+    if (
+        selectionMode === "kwh"
+    ) {
+
+        document
+            .getElementById(
+                "kwhStat"
+            )
+            .classList.add(
+                "selected-stat"
+            );
+    }
+}
+
+
+/* =========================================================
+   GRAF
+   ========================================================= */
+
+function renderChart() {
+
+    const chart =
+        document.getElementById(
+            "chart"
+        );
+
+    chart.innerHTML = "";
+
+
+    const day =
+        getActiveDay();
+
+
+    if (
+        !day ||
+        !Array.isArray(day.prices) ||
+        day.prices.length !== 24
+    ) {
+
+        showLoadError(
+            "Ingen prisdata tilgængelig"
+        );
+
+        return;
+    }
+
+
+    const prices =
+        day.prices;
+
+    const forecast =
+        isForecastDay(day);
+
+    const scale =
+        getScale();
+
+
+    const zeroLine =
+        document.createElement(
+            "div"
+        );
+
+    zeroLine.className =
+        "zero-line";
+
+    zeroLine.style.bottom =
+        (
+            scale.negative /
+            scale.total *
+            100
+        ) + "%";
+
+    chart.appendChild(
+        zeroLine
+    );
+
+
+    for (
+        let price = 25;
+        price <= scale.positive;
+        price += 25
+    ) {
+
+        const position =
+            (
+                scale.negative +
+                price
+            ) /
+            scale.total;
+
+        const line =
+            document.createElement(
+                "div"
+            );
+
+        line.className =
+            "chart-line";
+
+        line.style.bottom =
+            position * 100 + "%";
+
+        chart.appendChild(
+            line
+        );
+    }
+
+
+    for (
+        let price = -25;
+        price >= -scale.negative;
+        price -= 25
+    ) {
+
+        const position =
+            (
+                scale.negative +
+                price
+            ) /
+            scale.total;
+
+        const line =
+            document.createElement(
+                "div"
+            );
+
+        line.className =
+            "chart-line";
+
+        line.style.bottom =
+            position * 100 + "%";
+
+        chart.appendChild(
+            line
+        );
+    }
+
+
+    prices.forEach(
+        (price, hour) => {
+
+            const bar =
+                document.createElement(
+                    "div"
+                );
+
+            bar.className =
+                "bar " +
+                getPriceClass(price);
+
+
+            /*
+               Kun dagens graf får
+               markeret den aktuelle time.
+            */
+
+            if (
+                activeDayIndex === 0 &&
+                hour < currentHour
+            ) {
+
+                bar.classList.add(
+                    "passed"
+                );
+            }
+
+
+            if (forecast) {
+
+                bar.classList.add(
+                    "forecast"
+                );
+            }
+
+
+            if (
+                activeDayIndex === 0 &&
+                hour === currentHour
+            ) {
+
+                bar.classList.add(
+                    "current"
+                );
+            }
+
+
+            bar.style.left =
+                (
+                    hour / 24 * 100
+                ) + "%";
+
+
+            if (price >= 0) {
+
+                const bottom =
+                    scale.negative /
+                    scale.total *
+                    100;
+
+                const height =
+                    price /
+                    scale.total *
+                    100;
+
+                bar.style.bottom =
+                    bottom + "%";
+
+                bar.style.height =
+                    height + "%";
+
+            }
+            else {
+
+                const bottom =
+                    (
+                        scale.negative +
+                        price
+                    ) /
+                    scale.total *
+                    100;
+
+                const height =
+                    Math.abs(price) /
+                    scale.total *
+                    100;
+
+                bar.style.bottom =
+                    bottom + "%";
+
+                bar.style.height =
+                    height + "%";
+            }
+
+
+            chart.appendChild(
+                bar
+            );
+        }
+    );
+
+
+    applySelection();
+}
+
+
+/* =========================================================
+   INFORMATION
+   ========================================================= */
+
+function updateInformation() {
+
+    const day =
+        getActiveDay();
+
+
+    if (
+        !day ||
+        !Array.isArray(day.prices) ||
+        day.prices.length !== 24
+    ) {
+
+        return;
+    }
+
+
+    const prices =
+        day.prices;
+
+
+    const minimum =
+        Math.min(...prices);
+
+    const maximum =
+        Math.max(...prices);
+
+
+    /*
+       Toppen viser ALTID den aktuelle
+       pris fra days[0].
+    */
+
+    updateCurrentPrice();
+
+
+    document
+        .getElementById(
+            "currentPriceHeader"
+        )
+        .textContent =
+            "ELPRIS: " +
+            formatHeaderPrice(
+                currentPrice
+            ) +
+            " pr. kWh";
+
+
+    const minIndex =
+        prices.indexOf(
+            minimum
+        );
+
+    const maxIndex =
+        prices.indexOf(
+            maximum
+        );
+
+
+    const minStat =
+        document.getElementById(
+            "minStat"
+        );
+
+    const maxStat =
+        document.getElementById(
+            "maxStat"
+        );
+
+
+    applyPriceBoxColor(
+        minStat,
+        minimum
+    );
+
+    applyPriceBoxColor(
+        maxStat,
+        maximum
+    );
+
+
+    document
+        .getElementById(
+            "minLabel"
+        )
+        .textContent =
+            "LAV " +
+            formatHour(
+                minIndex
+            );
+
+
+    document
+        .getElementById(
+            "maxLabel"
+        )
+        .textContent =
+            "HØJ " +
+            formatHour(
+                maxIndex
+            );
+
+
+    document
+        .getElementById(
+            "minPrice"
+        )
+        .textContent =
+            formatStatPrice(
+                minimum
+            );
+
+
+    document
+        .getElementById(
+            "maxPrice"
+        )
+        .textContent =
+            formatStatPrice(
+                maximum
+            );
+
+
+    const cheapest =
+        findCheapestFourHours(
+            prices
+        );
+
+
+    document
+        .getElementById(
+            "fourHourInterval"
+        )
+        .textContent =
+            formatHour(
+                cheapest.start
+            ) +
+            " – " +
+            formatHour(
+                cheapest.end
+            );
+
+
+    const fourHourStat =
+        document.getElementById(
+            "fourHourStat"
+        );
+
+    applyPriceBoxColor(
+        fourHourStat,
+        cheapest.average
+    );
+
+
+    const hoursUnder25 =
+        getHoursUnder25(
+            prices
+        );
+
+    const kwhUnder25 =
+        calculateKwhUnder25(
+            prices
+        );
+
+
+    const kwhStat =
+        document.getElementById(
+            "kwhStat"
+        );
+
+
+    document
+        .getElementById(
+            "kwhUnder25"
+        )
+        .textContent =
+            kwhUnder25 +
+            " kWh";
+
+
+    kwhStat
+        .querySelector(
+            ".kwh-subtext"
+        )
+        .textContent = "";
+
+
+    applyKwhBoxColor(
+        kwhStat,
+        hoursUnder25
+    );
+
+
+    updateSelectedStat();
+}
+
+
+/* =========================================================
+   HEADER / GRAF-TITEL
+   ========================================================= */
+
+function updateHeaderText() {
+
+    const title =
+        document.getElementById(
+            "chartTitle"
+        );
+
+    const date =
+        document.getElementById(
+            "chartDate"
+        );
+
+
+    const day =
+        getActiveDay();
+
+
+    if (!day) {
+        return;
+    }
+
+
+    /*
+       Dag 0:
+       "Timepriser"
+
+       Dag 1:
+       "Timepriser i morgen"
+
+       Dag 2+:
+       "Timepriser Onsdag" osv.
+
+       "(Prognose)" vises KUN hvis
+       API'et faktisk siger type=forecast.
+    */
+
+    let titleText;
+
+
+    if (
+        activeDayIndex === 0
+    ) {
+
+        titleText =
+            "Timepriser";
+
+    }
+    else if (
+        activeDayIndex === 1
+    ) {
+
+        titleText =
+            "Timepriser i morgen";
+
+    }
+    else {
+
+        titleText =
+            "Timepriser " +
+            getDayName(
+                day,
+                activeDayIndex
+            );
+    }
+
+
+    if (
+        isForecastDay(day)
+    ) {
+
+        title.innerHTML =
+            titleText +
+            ' <span class="forecast-text">' +
+            '(Prognose)' +
+            '</span>';
+
+    }
+    else {
+
+        /*
+           Ingen tekst erstatter
+           prognose-teksten ved reel data.
+        */
+
+        title.textContent =
+            titleText;
+    }
+
+
+    date.textContent =
+        formatDate(
+            day,
+            activeDayIndex
+        );
+}
+
+
+/* =========================================================
+   MARKERING
+   ========================================================= */
+
+function applySelection() {
+
+    const chart =
+        document.getElementById(
+            "chart"
+        );
+
+    const bars =
+        chart.querySelectorAll(
+            ".bar"
+        );
+
+
+    bars.forEach(
+        bar => {
+
+            bar.classList.remove(
+                "four-hour-selected",
+                "single-hour-selected"
+            );
+        }
+    );
+
+
+    chart.classList.remove(
+        "selection-mode"
+    );
+
+
+    if (
+        selectionMode === null
+    ) {
+
+        return;
+    }
+
+
+    chart.classList.add(
+        "selection-mode"
+    );
+
+
+    const day =
+        getActiveDay();
+
+
+    if (!day) {
+        return;
+    }
+
+
+    const prices =
+        day.prices;
+
+
+    if (
+        selectionMode === "min"
+    ) {
+
+        const min =
+            Math.min(...prices);
+
+        const index =
+            prices.indexOf(min);
+
+        if (bars[index]) {
+
+            bars[index].classList.add(
+                "single-hour-selected"
+            );
+        }
+    }
+
+
+    if (
+        selectionMode === "max"
+    ) {
+
+        const max =
+            Math.max(...prices);
+
+        const index =
+            prices.indexOf(max);
+
+        if (bars[index]) {
+
+            bars[index].classList.add(
+                "single-hour-selected"
+            );
+        }
+    }
+
+
+    if (
+        selectionMode === "four"
+    ) {
+
+        const cheapest =
+            findCheapestFourHours(
+                prices
+            );
+
+        for (
+            let hour = cheapest.start;
+            hour < cheapest.end;
+            hour++
+        ) {
+
+            if (bars[hour]) {
+
+                bars[hour].classList.add(
+                    "four-hour-selected"
+                );
+            }
+        }
+    }
+
+
+    if (
+        selectionMode === "kwh"
+    ) {
+
+        prices.forEach(
+            (price, hour) => {
+
+                if (
+                    price <= 25 &&
+                    bars[hour]
+                ) {
+
+                    bars[hour].classList.add(
+                        "four-hour-selected"
+                    );
+                }
+            }
+        );
+    }
+}
+
+
+/* =========================================================
+   STATISTIK-KLIK
+   ========================================================= */
+
+document
+    .getElementById("minStat")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            clearSelection();
+
+            selectionMode =
+                selectionMode === "min"
+                    ? null
+                    : "min";
+
+            updateSelectedStat();
+            applySelection();
+        }
+    );
+
+
+document
+    .getElementById("maxStat")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            clearSelection();
+
+            selectionMode =
+                selectionMode === "max"
+                    ? null
+                    : "max";
+
+            updateSelectedStat();
+            applySelection();
+        }
+    );
+
+
+document
+    .getElementById("fourHourStat")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            clearSelection();
+
+            selectionMode =
+                selectionMode === "four"
+                    ? null
+                    : "four";
+
+            updateSelectedStat();
+            applySelection();
+        }
+    );
+
+
+document
+    .getElementById("kwhStat")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            clearSelection();
+
+            selectionMode =
+                selectionMode === "kwh"
+                    ? null
+                    : "kwh";
+
+            updateSelectedStat();
+            applySelection();
+        }
+    );
+
+
+/* =========================================================
+   POINTER / TOUCH
+   ========================================================= */
+
+let activePointer = false;
+let lastTouchedHour = null;
+
+
+function getHourFromPointer(event) {
+
+    const chart =
+        document.getElementById(
+            "chart"
+        );
+
+    const rect =
+        chart.getBoundingClientRect();
+
+    const x =
+        event.clientX -
+        rect.left;
+
+    const clampedX =
+        Math.max(
+            0,
+            Math.min(
+                rect.width,
+                x
+            )
+        );
+
+    const hour =
+        Math.floor(
+            clampedX /
+            rect.width *
+            24
+        );
+
+    return Math.max(
+        0,
+        Math.min(
+            23,
+            hour
+        )
+    );
+}
+
+
+function selectHour(hour) {
+
+    const day =
+        getActiveDay();
+
+
+    if (!day) {
+        return;
+    }
+
+
+    const prices =
+        day.prices;
+
+
+    const bars =
+        document.querySelectorAll(
+            ".bar"
+        );
+
+
+    const selectedBar =
+        bars[hour];
+
+
+    if (!selectedBar) {
+        return;
+    }
+
+
+    selectionMode = null;
+
+    updateSelectedStat();
+
+
+    document
+        .getElementById(
+            "chart"
+        )
+        .classList.remove(
+            "selection-mode"
+        );
+
+
+    bars.forEach(
+        bar => {
+
+            bar.classList.remove(
+                "four-hour-selected",
+                "single-hour-selected"
+            );
+        }
+    );
+
+
+    showPrice(
+        hour,
+        prices[hour],
+        selectedBar
+    );
+}
+
+
+function showPrice(
+    hour,
+    price,
+    selectedBar
+) {
+
+    document
+        .querySelectorAll(
+            ".selected-price"
+        )
+        .forEach(
+            label => {
+                label.remove();
+            }
+        );
+
+
+    selectedBar.classList.add(
+        "single-hour-selected"
+    );
+
+
+    const label =
+        document.createElement(
+            "div"
+        );
+
+
+    label.className =
+        "selected-price";
+
+
+    label.innerHTML = `
+        <span class="price-hour">
+            ${formatHour(hour)}
+        </span>
+
+        <span class="price-value">
+            ${formatStatPrice(price)}
+        </span>
+    `;
+
+
+    if (price >= 0) {
+
+        label.classList.add(
+            "positive-price"
+        );
+
+        selectedBar.appendChild(
+            label
+        );
+
+    }
+    else {
+
+        label.classList.add(
+            "negative-price"
+        );
+
+
+        const scale =
+            getScale();
+
+
+        label.style.left =
+            (
+                (hour + 0.5) /
+                24 *
+                100
+            ) + "%";
+
+
+        label.style.top =
+            (
+                100 -
+                (
+                    scale.negative /
+                    scale.total *
+                    100
+                )
+            ) + "%";
+
+
+        document
+            .getElementById(
+                "chart"
+            )
+            .appendChild(
+                label
+            );
+    }
+
+
+    lastTouchedHour =
+        hour;
+}
+
+
+const chartElement =
+    document.getElementById(
+        "chart"
+    );
+
+
+chartElement.addEventListener(
+    "pointerdown",
+    function(event) {
+
+        activePointer = true;
+
+        event.preventDefault();
+
+        const hour =
+            getHourFromPointer(
+                event
+            );
+
+        selectHour(hour);
+
+        try {
+
+            chartElement.setPointerCapture(
+                event.pointerId
+            );
+
+        }
+        catch (error) {}
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+chartElement.addEventListener(
+    "pointermove",
+    function(event) {
+
+        if (!activePointer) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const hour =
+            getHourFromPointer(
+                event
+            );
+
+
+        if (
+            hour !== lastTouchedHour
+        ) {
+
+            selectHour(hour);
+        }
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+function finishPointer(event) {
+
+    if (!activePointer) {
+        return;
+    }
+
+    activePointer = false;
+
+    try {
+
+        chartElement.releasePointerCapture(
+            event.pointerId
+        );
+
+    }
+    catch (error) {}
+}
+
+
+chartElement.addEventListener(
+    "pointerup",
+    finishPointer
+);
+
+chartElement.addEventListener(
+    "pointercancel",
+    finishPointer
+);
+
+
+function clearSelection() {
+
+    document
+        .querySelectorAll(
+            ".selected-price"
+        )
+        .forEach(
+            label => {
+                label.remove();
+            }
+        );
+
+    lastTouchedHour =
+        null;
+}
+
+
+/* =========================================================
+   DAGE
+   ========================================================= */
+
+function setActiveDay(
+    index
+) {
+
+    const maxAvailable =
+        Math.min(
+            MAX_DAY_INDEX,
+            forecastDays.length - 1
+        );
+
+
+    if (
+        index < 0 ||
+        index > maxAvailable
+    ) {
+
+        return;
+    }
+
+
+    activeDayIndex =
+        index;
+
+    selectionMode =
+        null;
+
+    clearSelection();
+
+    updateDayButtons();
+
+    render();
+}
+
+
+/* ---------------------------------------------------------
+   I DAG
+   --------------------------------------------------------- */
+
+document
+    .getElementById("todayButton")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            setActiveDay(0);
+        }
+    );
+
+
+/* ---------------------------------------------------------
+   I MORGEN / AKTIV DAG
+   --------------------------------------------------------- */
+
+document
+    .getElementById("tomorrowButton")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+
+            /*
+               Når vi står på i dag:
+               klik -> i morgen.
+
+               Når vi allerede står på en
+               senere dag, skal knappen IKKE
+               ændre dag. Den er blot den
+               aktive dag-knap.
+            */
+
+            if (
+                activeDayIndex === 0
+            ) {
+
+                setActiveDay(1);
+            }
+        }
+    );
+
+
+/* ---------------------------------------------------------
+   NÆSTE DAG
+   --------------------------------------------------------- */
+
+document
+    .getElementById("nextDayButton")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            const maxAvailable =
+                Math.min(
+                    MAX_DAY_INDEX,
+                    forecastDays.length - 1
+                );
+
+
+            if (
+                activeDayIndex <
+                maxAvailable
+            ) {
+
+                setActiveDay(
+                    activeDayIndex + 1
+                );
+            }
+        }
+    );
+
+
+/* =========================================================
+   KLIK UDENFOR
+   ========================================================= */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        if (
+            event.target.closest(
+                ".chart"
+            ) ||
+            event.target.closest(
+                ".stat"
+            ) ||
+            event.target.closest(
+                ".days"
+            )
+        ) {
+
+            return;
+        }
+
+        selectionMode = null;
+
+        clearSelection();
+
+        updateSelectedStat();
+
+        applySelection();
+    }
+);
+
+
+/* =========================================================
+   FEJL
+   ========================================================= */
+
+function showLoadError(
+    message
+) {
+
+    const chart =
+        document.getElementById(
+            "chart"
+        );
+
+    chart.innerHTML = "";
+
+
+    const error =
+        document.createElement(
+            "div"
+        );
+
+
+    error.style.position =
+        "absolute";
+
+    error.style.left =
+        "50%";
+
+    error.style.top =
+        "50%";
+
+    error.style.transform =
+        "translate(-50%, -50%)";
+
+    error.style.color =
+        "#8392a8";
+
+    error.style.fontSize =
+        "11px";
+
+    error.style.textAlign =
+        "center";
+
+    error.textContent =
+        message;
+
+
+    chart.appendChild(
+        error
+    );
+}
+
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+
+function render() {
+
+    updateDayButtons();
+
+    updateHeaderText();
+
+    updateInformation();
+
+    renderChart();
+}
+
+
+/* =========================================================
+   OPDATER DATA
+   ========================================================= */
+
+async function refreshData() {
+
+    try {
+
+        const newDays =
+            await loadForecastData();
+
+
+        const normalizedDays =
+            newDays
+                .map(
+                    day =>
+                        normalizeDay(day)
+                )
+                .filter(
+                    day =>
+                        day !== null
+                );
+
+
+        if (
+            normalizedDays.length === 0
+        ) {
+
+            throw new Error(
+                "Ingen gyldige dage modtaget"
+            );
+        }
+
+
+        forecastDays =
+            normalizedDays;
+
+
+        /*
+           Hvis den valgte dag ikke længere
+           findes, går vi tilbage til den
+           sidste tilgængelige dag.
+        */
+
+        const maxAvailable =
+            Math.min(
+                MAX_DAY_INDEX,
+                forecastDays.length - 1
+            );
+
+
+        if (
+            activeDayIndex >
+            maxAvailable
+        ) {
+
+            activeDayIndex =
+                maxAvailable;
+        }
+
+
+        updateCurrentPrice();
+
+        render();
+
+    }
+    catch (error) {
+
+        console.error(
+            "Fejl ved opdatering:",
+            error
+        );
+
+        /*
+           Vi beholder eksisterende data,
+           hvis en opdatering fejler.
+        */
+    }
+}
+
+
+/* =========================================================
+   AUTO-OPDATERING
+   ========================================================= */
+
+function startAutoRefresh() {
+
+    if (refreshTimer) {
+
+        clearInterval(
+            refreshTimer
+        );
+    }
+
+
+    /*
+       Prognose/reelle data kan ændre sig,
+       så API'et kontrolleres hvert 10. sekund.
+       Det gælder uanset hvilken dag grafen viser.
+    */
+
+    refreshTimer =
+        setInterval(
+            async function() {
+
+                await refreshData();
+
+            },
+            10000
+        );
+}
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+async function initialize() {
+
+    try {
+
+        await refreshData();
+
+        startAutoRefresh();
+
+    }
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+        showLoadError(
+            "Kunne ikke hente elpriser"
+        );
+    }
+}
+
+
+initialize();
+
+</script>
+
+</body>
+</html>
