@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
 <title>Moritz Elpris</title>
 
 <style>
+
 * {
 box-sizing: border-box;
 }
@@ -166,6 +168,7 @@ animation: forecastPulse 3.2s ease-in-out infinite;
 }
 
 @keyframes forecastPulse {
+
 0% {
 filter: saturate(0.75);
 }
@@ -177,6 +180,7 @@ filter: saturate(1.45);
 100% {
 filter: saturate(0.75);
 }
+
 }
 
 .card-date {
@@ -647,30 +651,82 @@ white-space: nowrap;
 }
 
 /* =========================================================
-   KWH
+   KWH / PRIS I ALT / TV 2
    ========================================================= */
 
 .kwh-stat {
 grid-column: 1 / -1;
+
+display: grid;
+grid-template-columns:
+minmax(0, 1fr)
+minmax(0, 1fr)
+minmax(0, 1fr);
+
+column-gap: 8px;
+row-gap: 0;
+
 margin-top: 0;
+padding: 12px 8px;
 }
 
-.kwh-stat .stat-label {
+.kpi-column {
+min-width: 0;
+text-align: center;
+}
+
+.kpi-label {
+height: 14px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
 font-size: 10px;
+font-weight: 650;
+line-height: 14px;
 color: #f2f5fa;
+
 white-space: nowrap;
 }
 
-.kwh-stat .stat-value {
+.kpi-value {
+height: 22px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+margin-top: 5px;
+
 font-size: 15px;
 font-weight: 800;
+line-height: 22px;
+
+font-variant-numeric: tabular-nums;
+white-space: nowrap;
 }
 
-.kwh-subtext {
+.kpi-subtext {
+height: 12px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
 margin-top: 3px;
-color: rgba(255,255,255,.62);
+
 font-size: 9px;
+font-weight: 600;
+line-height: 12px;
+
+color: rgba(255,255,255,.62);
+
 white-space: nowrap;
+}
+
+.kpi-subtext.placeholder {
+visibility: hidden;
 }
 
 /* =========================================================
@@ -780,6 +836,24 @@ font-size: 12px;
 font-size: 9px;
 }
 
+.kwh-stat {
+column-gap: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+
+.kpi-label {
+font-size: 9px;
+}
+
+.kpi-value {
+font-size: 13px;
+}
+
+.kpi-subtext {
+font-size: 8px;
+}
+
 .color-legend {
 gap: 3px;
 padding-left: 5px;
@@ -796,8 +870,11 @@ width: 9px;
 height: 9px;
 flex-basis: 9px;
 }
+
 }
+
 </style>
+
 </head>
 
 <body>
@@ -834,7 +911,6 @@ Spotpris inkl. moms
 
 </header>
 
-
 <div class="days">
 
 <button
@@ -856,11 +932,10 @@ class="day day-next"
 id="nextDayButton"
 type="button"
 aria-label="Næste dag">
-&gt;
+>
 </button>
 
 </div>
-
 
 <section class="card">
 
@@ -879,12 +954,10 @@ id="chartDate">
 
 </div>
 
-
 <div
 class="chart"
 id="chart">
 </div>
-
 
 <div class="axis">
 <span>00</span>
@@ -893,7 +966,6 @@ id="chart">
 <span>18</span>
 <span>24</span>
 </div>
-
 
 <div class="stats">
 
@@ -914,7 +986,6 @@ id="minPrice">
 
 </div>
 
-
 <div
 class="stat"
 id="maxStat">
@@ -932,7 +1003,6 @@ id="maxPrice">
 
 </div>
 
-
 <div
 class="stat stat-four-hours"
 id="fourHourStat">
@@ -948,27 +1018,71 @@ id="fourHourInterval">
 
 </div>
 
-
 <div
 class="stat kwh-stat"
 id="kwhStat">
 
-<div class="stat-label">
+<div class="kpi-column">
+
+<div class="kpi-label">
 KWH MAX 25 ØRE
 </div>
 
 <div
-class="stat-value"
+class="kpi-value"
 id="kwhUnder25">
+-
 </div>
 
-<div class="kwh-subtext">
+<div class="kpi-subtext placeholder">
+&nbsp;
+</div>
+
+</div>
+
+<div class="kpi-column">
+
+<div class="kpi-label">
+PRIS I ALT
+</div>
+
+<div
+class="kpi-value"
+id="priceInTotal">
+-
+</div>
+
+<div
+class="kpi-subtext"
+id="priceInTotalSubtext">
+&nbsp;
+</div>
+
+</div>
+
+<div class="kpi-column">
+
+<div class="kpi-label">
+TV 2 KØRSEL
+</div>
+
+<div
+class="kpi-value"
+id="tv2Cost">
+-
+</div>
+
+<div
+class="kpi-subtext"
+id="tv2Subtext">
+&nbsp;
 </div>
 
 </div>
 
 </div>
 
+</div>
 
 <div class="color-legend">
 
@@ -1003,7 +1117,6 @@ id="kwhUnder25">
 
 </div>
 
-
 <script>
 
 const API_BASE =
@@ -1018,8 +1131,74 @@ const API_AREA =
 const MAX_DAYS_FORWARD =
 6;
 
-const FORECAST_REFRESH_MS =
+const DATA_REFRESH_MS =
 10000;
+
+
+/* =========================================================
+   NY PRISBEREGNING
+   ========================================================= */
+
+/*
+ * GRAFEN BRUGER STADIG API_MODE = spot_inkl.
+ *
+ * Den nye beregning bruger sit EGET forecast-kald:
+ *
+ * https://elpriser.org/api/forecast?area=DK1&mode=inkl_alt
+ *
+ * Denne pris er den pris inkl. afgifter.
+ *
+ * Rå flowtariff:
+ *
+ * https://elpriser.org/api/raw/tariff
+ * ?gln=5790000392551
+ * &date=YYYY-MM-DD
+ *
+ * Rå tariff er ekskl. moms.
+ *
+ * Regnestykket pr. time:
+ *
+ * forecast inkl_alt
+ * + (rå tariff * 1.25)
+ * + 0.025
+ *
+ * Derefter:
+ *
+ * total pris pr. kWh * 11 kWh
+ *
+ * Kun timer hvor SPOTPRISEN i grafens
+ * eksisterende spotdata er <= 25 øre
+ * medregnes.
+ */
+
+const TARIFF_GLN =
+"5790000392551";
+
+const VAT =
+1.25;
+
+const SUPPLIER_SURCHARGE_INCL_VAT =
+0.025;
+
+
+/*
+ * Separat forecast-datasæt til den nye sektion.
+ *
+ * Dette påvirker IKKE grafen.
+ */
+
+let tariffForecastDays = [];
+
+
+/*
+ * Cache til rå tariff.
+ *
+ * key = dato
+ * value = 24 rå tariffer i DKK/kWh
+ */
+
+const tariffCache =
+new Map();
 
 
 /* =========================================================
@@ -1037,11 +1216,20 @@ let currentPrice = 0;
 
 let selectionMode = null;
 
-let forecastRefreshTimer = null;
+let dataRefreshTimer = null;
+
+let dataRefreshInProgress = false;
+
+let lastDataSignature = "";
+
+let lastSelectedDaySignature = "";
+
+let lastKnownHour =
+currentHour;
 
 
 /* =========================================================
-   API
+   API - GRAFENS EKSISTERENDE SPOTDATA
    ========================================================= */
 
 async function loadForecastData() {
@@ -1082,7 +1270,196 @@ return data.days;
 
 
 /* =========================================================
-   KONVERTER API-DATA
+   API - NY SEKTION
+   FORECAST INKL_ALT
+   ========================================================= */
+
+/*
+ * Dette kald er KUN til den nye sektion.
+ *
+ * Grafen bruger fortsat loadForecastData()
+ * ovenfor med spot_inkl.
+ */
+
+async function loadTariffForecastData() {
+
+const response =
+await fetch(
+API_BASE +
+"/forecast?area=DK1&mode=inkl_alt&_=" +
+Date.now()
+);
+
+if (!response.ok) {
+
+throw new Error(
+"Kunne ikke hente forecast inkl_alt"
+);
+}
+
+const data =
+await response.json();
+
+if (
+!data ||
+!Array.isArray(data.days)
+) {
+
+throw new Error(
+"Forecast inkl_alt returnerede ikke dage"
+);
+}
+
+return data.days;
+}
+
+
+/* =========================================================
+   RÅ TARIFF
+   ========================================================= */
+
+async function loadTariffsForDate(
+date
+) {
+
+if (!date) {
+return [];
+}
+
+const cached =
+tariffCache.get(date);
+
+if (
+cached &&
+cached.length === 24
+) {
+
+return cached;
+}
+
+const response =
+await fetch(
+API_BASE +
+"/raw/tariff?gln=" +
+encodeURIComponent(TARIFF_GLN) +
+"&date=" +
+encodeURIComponent(date) +
+"&_=" +
+Date.now()
+);
+
+if (!response.ok) {
+
+throw new Error(
+"Kunne ikke hente rå tariff for " +
+date
+);
+}
+
+const data =
+await response.json();
+
+if (
+!data ||
+!Array.isArray(data.records)
+) {
+
+console.warn(
+"Tariff API returnerede ikke records",
+data
+);
+
+return [];
+}
+
+
+/*
+ * Find record for den konkrete dato.
+ */
+
+let record =
+data.records.find(
+item => {
+
+if (
+!item ||
+typeof item.ValidFrom !==
+"string"
+) {
+
+return false;
+}
+
+return item.ValidFrom
+.slice(0, 10) === date;
+
+}
+);
+
+if (!record) {
+
+record =
+data.records[0];
+}
+
+if (!record) {
+return [];
+}
+
+
+/*
+ * Price1 = 00:00
+ * Price2 = 01:00
+ * ...
+ * Price24 = 23:00
+ */
+
+const tariffs = [];
+
+for (
+let hour = 0;
+hour < 24;
+hour++
+) {
+
+const field =
+"Price" +
+(hour + 1);
+
+const value =
+Number(
+record[field]
+);
+
+if (
+!Number.isFinite(value)
+) {
+
+return [];
+}
+
+tariffs.push(
+value
+);
+}
+
+if (
+tariffs.length === 24
+) {
+
+tariffCache.set(
+date,
+tariffs
+);
+
+}
+
+return tariffs;
+}
+
+
+/* =========================================================
+   DATA -> ØRE
    ========================================================= */
 
 function extractDayPrices(day) {
@@ -1115,6 +1492,7 @@ return item.price * 100;
 return Number(
 item.price
 ) * 100;
+
 });
 
 return prices
@@ -1123,6 +1501,137 @@ value =>
 Number.isFinite(value)
 )
 .slice(0, 24);
+}
+
+
+/* =========================================================
+   NY SEKTION:
+   FIND FORECAST INKL_ALT FOR SAMME DATO
+   ========================================================= */
+
+function findTariffForecastDay(
+date
+) {
+
+if (
+!date ||
+!Array.isArray(
+tariffForecastDays
+)
+) {
+
+return null;
+}
+
+return tariffForecastDays.find(
+day =>
+day &&
+day.date === date
+) || null;
+}
+
+
+/*
+ * Forecast inkl_alt returneres i kr/kWh.
+ *
+ * Denne funktion gør IKKE noget ved grafens
+ * spotpriser.
+ */
+
+function extractForecastInclAltPrices(
+day
+) {
+
+if (
+!day ||
+!Array.isArray(day.prices)
+) {
+
+return [];
+}
+
+return day.prices
+.map(item => {
+
+if (
+typeof item === "number"
+) {
+
+return Number(item);
+}
+
+if (
+item &&
+typeof item.price === "number"
+) {
+
+return Number(item.price);
+}
+
+if (
+item &&
+item.price !== undefined
+) {
+
+return Number(
+item.price
+);
+}
+
+return NaN;
+
+})
+.filter(
+value =>
+Number.isFinite(value)
+)
+.slice(0, 24);
+}
+
+
+/* =========================================================
+   DATA-SIGNATUR
+   ========================================================= */
+
+function createDataSignature(days) {
+
+if (
+!Array.isArray(days)
+) {
+
+return "";
+}
+
+return days.map(day => {
+
+const prices =
+extractDayPrices(day);
+
+return [
+day && day.date
+? day.date
+: "",
+day && day.type
+? day.type
+: "",
+prices.join(",")
+].join("|");
+
+}).join("||");
+}
+
+
+function createDaySignature(day) {
+
+if (!day) {
+return "";
+}
+
+return [
+day.date || "",
+day.type || "",
+extractDayPrices(day).join(",")
+].join("|");
 }
 
 
@@ -1221,7 +1730,8 @@ if (activeDayIndex === 0) {
 tomorrowButton.textContent =
 "I morgen";
 
-} else {
+}
+else {
 
 tomorrowButton.textContent =
 getDayLabel(
@@ -1361,8 +1871,8 @@ return (
 minimumFractionDigits: 2,
 maximumFractionDigits: 2
 }
-)
-+ " kr"
+) +
+" kr"
 );
 }
 
@@ -1387,12 +1897,31 @@ return (
 minimumFractionDigits: 2,
 maximumFractionDigits: 2
 }
-)
-+ " kr"
+) +
+" kr"
 );
 }
 
 return rounded + " øre";
+}
+
+
+function formatKroner(value) {
+
+if (
+!Number.isFinite(value)
+) {
+
+return "-";
+}
+
+return value.toLocaleString(
+"da-DK",
+{
+minimumFractionDigits: 2,
+maximumFractionDigits: 2
+}
+) + " kr.";
 }
 
 
@@ -1631,6 +2160,7 @@ document
 "selected-stat"
 );
 }
+
 }
 
 
@@ -1813,7 +2343,8 @@ bottom + "%";
 bar.style.height =
 height + "%";
 
-} else {
+}
+else {
 
 const bottom =
 (
@@ -1838,10 +2369,688 @@ height + "%";
 chart.appendChild(
 bar
 );
-}
-);
+
+});
 
 applySelection();
+}
+
+
+/* =========================================================
+   OPDATER AKTUEL TIME
+   ========================================================= */
+
+function updateCurrentHourVisual() {
+
+const chart =
+document.getElementById(
+"chart"
+);
+
+const bars =
+chart.querySelectorAll(
+".bar"
+);
+
+if (
+activeDayIndex !== 0 ||
+bars.length !== 24
+) {
+
+return;
+}
+
+bars.forEach(
+(bar, hour) => {
+
+bar.classList.remove(
+"current"
+);
+
+if (
+hour < currentHour
+) {
+
+bar.classList.add(
+"passed"
+);
+
+}
+else {
+
+bar.classList.remove(
+"passed"
+);
+}
+
+if (
+hour === currentHour
+) {
+
+bar.classList.add(
+"current"
+);
+}
+
+});
+
+applySelection();
+}
+
+
+/* =========================================================
+   PRISBEREGNING
+   ========================================================= */
+
+/*
+ * Kvalificerende timer bestemmes stadig
+ * ud fra GRAFENS spotpris.
+ *
+ * Spotpris <= 25 øre.
+ */
+
+function getQualifyingHours(
+prices
+) {
+
+const hours = [];
+
+prices.forEach(
+(price, hour) => {
+
+if (
+price <= 25
+) {
+
+hours.push(hour);
+}
+
+});
+
+return hours;
+}
+
+
+/*
+ * NYT REGNESTYKKE
+ *
+ * forecast inkl_alt
+ * + (rå tariff * 1.25)
+ * + 0.025
+ *
+ * Bemærk:
+ *
+ * forecast inkl_alt returneres i KR/kWh.
+ *
+ * rå tariff returneres i KR/kWh
+ * ekskl. moms.
+ */
+
+function getHourTotalPrice(
+forecastInclAltPrices,
+rawTariffs,
+hour
+) {
+
+if (
+!Array.isArray(
+forecastInclAltPrices
+) ||
+!Number.isFinite(
+forecastInclAltPrices[hour]
+)
+) {
+
+return null;
+}
+
+if (
+!Array.isArray(
+rawTariffs
+) ||
+!Number.isFinite(
+rawTariffs[hour]
+)
+) {
+
+return null;
+}
+
+const forecastInclAlt =
+forecastInclAltPrices[hour];
+
+const tariffInclVat =
+rawTariffs[hour] *
+VAT;
+
+const supplierSurcharge =
+SUPPLIER_SURCHARGE_INCL_VAT;
+
+return (
+forecastInclAlt +
+tariffInclVat +
+supplierSurcharge
+);
+}
+
+
+/* =========================================================
+   PRIS I ALT
+   ========================================================= */
+
+function calculateTotalPrice(
+spotPrices,
+forecastInclAltPrices,
+rawTariffs
+) {
+
+const hours =
+getQualifyingHours(
+spotPrices
+);
+
+if (
+hours.length === 0
+) {
+
+return null;
+}
+
+let total = 0;
+
+for (
+const hour of hours
+) {
+
+const price =
+getHourTotalPrice(
+forecastInclAltPrices,
+rawTariffs,
+hour
+);
+
+if (
+!Number.isFinite(price)
+) {
+
+return null;
+}
+
+total +=
+price * 11;
+}
+
+return total;
+}
+
+
+/* =========================================================
+   TV 2
+   ========================================================= */
+
+function calculateTv2Cost(
+spotPrices,
+forecastInclAltPrices,
+rawTariffs
+) {
+
+const hours =
+getQualifyingHours(
+spotPrices
+);
+
+if (
+hours.length === 0
+) {
+
+return null;
+}
+
+let sum = 0;
+
+for (
+const hour of hours
+) {
+
+const price =
+getHourTotalPrice(
+forecastInclAltPrices,
+rawTariffs,
+hour
+);
+
+if (
+!Number.isFinite(price)
+) {
+
+return null;
+}
+
+sum += price;
+}
+
+const averagePrice =
+sum / hours.length;
+
+return (
+averagePrice * 17
+);
+}
+
+
+/* =========================================================
+   HENT OG BEREGN EN DAG
+   ========================================================= */
+
+async function calculateDayTariffData(
+day
+) {
+
+if (
+!day ||
+!day.date
+) {
+
+return null;
+}
+
+const spotPrices =
+extractDayPrices(day);
+
+if (
+spotPrices.length !== 24
+) {
+
+return null;
+}
+
+
+/*
+ * FIND FORECAST INKL_ALT FOR
+ * PRÆCIS SAMME DATO.
+ */
+
+const tariffForecastDay =
+findTariffForecastDay(
+day.date
+);
+
+if (!tariffForecastDay) {
+
+console.warn(
+"Ingen forecast inkl_alt for dato:",
+day.date
+);
+
+return null;
+}
+
+const forecastInclAltPrices =
+extractForecastInclAltPrices(
+tariffForecastDay
+);
+
+if (
+forecastInclAltPrices.length !== 24
+) {
+
+console.warn(
+"Forecast inkl_alt mangler 24 priser for:",
+day.date,
+forecastInclAltPrices
+);
+
+return null;
+}
+
+
+/*
+ * Hent rå tariff for PRÆCIS DENNE DATO.
+ */
+
+const rawTariffs =
+await loadTariffsForDate(
+day.date
+);
+
+if (
+rawTariffs.length !== 24
+) {
+
+console.warn(
+"Rå tariff mangler 24 priser for:",
+day.date,
+rawTariffs
+);
+
+return null;
+}
+
+
+/*
+ * Kun timer med spot <= 25 øre.
+ */
+
+const qualifyingHours =
+getQualifyingHours(
+spotPrices
+);
+
+const totalCost =
+calculateTotalPrice(
+spotPrices,
+forecastInclAltPrices,
+rawTariffs
+);
+
+const tv2Cost =
+calculateTv2Cost(
+spotPrices,
+forecastInclAltPrices,
+rawTariffs
+);
+
+return {
+date: day.date,
+qualifyingHours,
+kwh:
+qualifyingHours.length * 11,
+totalCost,
+tv2Cost
+};
+}
+
+
+/* =========================================================
+   BEREGN ALLE 7 DAGE
+   ========================================================= */
+
+async function calculateAllSevenDays() {
+
+if (
+!Array.isArray(apiDays) ||
+apiDays.length === 0
+) {
+
+return;
+}
+
+if (
+!Array.isArray(tariffForecastDays) ||
+tariffForecastDays.length === 0
+) {
+
+return;
+}
+
+const days =
+apiDays.slice(
+0,
+MAX_DAYS_FORWARD + 1
+);
+
+
+/*
+ * Hver dag sendes separat til
+ * calculateDayTariffData().
+ *
+ * Funktionen bruger:
+ *
+ * day.date
+ *
+ * til både forecast-opslag og
+ * tariff-opslag.
+ */
+
+const results =
+await Promise.all(
+days.map(
+day =>
+calculateDayTariffData(day)
+)
+);
+
+
+/*
+ * Gem resultatet på den konkrete dag.
+ */
+
+results.forEach(
+(result, index) => {
+
+if (
+result &&
+apiDays[index]
+) {
+
+apiDays[index]._tariffCalculation =
+result;
+
+}
+
+});
+
+
+updateDisplayedTariffInformation();
+}
+
+
+/* =========================================================
+   VIS VALGTE DAGS BEREGNING
+   ========================================================= */
+
+function updateDisplayedTariffInformation() {
+
+const day =
+getSelectedDay();
+
+if (!day) {
+return;
+}
+
+const prices =
+extractDayPrices(day);
+
+if (
+prices.length !== 24
+) {
+
+return;
+}
+
+const hoursUnder25 =
+getHoursUnder25(
+prices
+);
+
+const kwhUnder25 =
+hoursUnder25 * 11;
+
+document
+.getElementById(
+"kwhUnder25"
+)
+.textContent =
+kwhUnder25 +
+" kWh";
+
+applyKwhBoxColor(
+document.getElementById(
+"kwhStat"
+),
+hoursUnder25
+);
+
+
+/*
+ * Ingen kvalificerende timer.
+ */
+
+if (
+hoursUnder25 === 0
+) {
+
+document
+.getElementById(
+"priceInTotal"
+)
+.textContent =
+"-";
+
+document
+.getElementById(
+"tv2Cost"
+)
+.textContent =
+"-";
+
+document
+.getElementById(
+"priceInTotalSubtext"
+)
+.textContent =
+"\u00a0";
+
+document
+.getElementById(
+"tv2Subtext"
+)
+.textContent =
+"\u00a0";
+
+return;
+}
+
+
+const calculation =
+day._tariffCalculation;
+
+
+/*
+ * Data mangler stadig.
+ */
+
+if (
+!calculation ||
+!Number.isFinite(
+calculation.totalCost
+)
+) {
+
+document
+.getElementById(
+"priceInTotal"
+)
+.textContent =
+"-";
+
+document
+.getElementById(
+"tv2Cost"
+)
+.textContent =
+"-";
+
+document
+.getElementById(
+"priceInTotalSubtext"
+)
+.textContent =
+"afventer data";
+
+document
+.getElementById(
+"tv2Subtext"
+)
+.textContent =
+"afventer data";
+
+return;
+}
+
+
+/*
+ * PRIS I ALT
+ */
+
+document
+.getElementById(
+"priceInTotal"
+)
+.textContent =
+formatKroner(
+calculation.totalCost
+);
+
+document
+.getElementById(
+"priceInTotalSubtext"
+)
+.textContent =
+hoursUnder25 +
+(
+hoursUnder25 === 1
+? " time × 11 kWh"
+: " timer × 11 kWh"
+);
+
+
+/*
+ * TV 2
+ */
+
+if (
+Number.isFinite(
+calculation.tv2Cost
+)
+) {
+
+document
+.getElementById(
+"tv2Cost"
+)
+.textContent =
+formatKroner(
+calculation.tv2Cost
+);
+
+document
+.getElementById(
+"tv2Subtext"
+)
+.textContent =
+"17 kWh · gennemsnitspris";
+
+}
+else {
+
+document
+.getElementById(
+"tv2Cost"
+)
+.textContent =
+"-";
+
+document
+.getElementById(
+"tv2Subtext"
+)
+.textContent =
+"\u00a0";
+}
+
+}
+
+
+/*
+ * Behold dette navn, så resten af
+ * appens logik fungerer uændret.
+ */
+
+async function updateTariffInformation() {
+
+await calculateAllSevenDays();
+
 }
 
 
@@ -1891,7 +3100,9 @@ currentPrice =
 todayPrices[
 currentHour
 ];
+
 }
+
 }
 
 document
@@ -1998,40 +3209,6 @@ document.getElementById(
 cheapest.average
 );
 
-const hoursUnder25 =
-getHoursUnder25(
-prices
-);
-
-const kwhUnder25 =
-calculateKwhUnder25(
-prices
-);
-
-const kwhStat =
-document.getElementById(
-"kwhStat"
-);
-
-document
-.getElementById(
-"kwhUnder25"
-)
-.textContent =
-kwhUnder25 +
-" kWh";
-
-kwhStat
-.querySelector(
-".kwh-subtext"
-)
-.textContent = "";
-
-applyKwhBoxColor(
-kwhStat,
-hoursUnder25
-);
-
 updateSelectedStat();
 }
 
@@ -2075,7 +3252,8 @@ activeDayIndex === 0
 title.innerHTML =
 "Timepriser";
 
-} else if (
+}
+else if (
 activeDayIndex === 1
 ) {
 
@@ -2084,16 +3262,19 @@ if (actual) {
 title.innerHTML =
 "Timepriser i morgen";
 
-} else {
+}
+else {
 
 title.innerHTML =
 'Timepriser i morgen ' +
 '<span class="forecast-text">' +
 '(Prognose)' +
 '</span>';
+
 }
 
-} else {
+}
+else {
 
 const weekday =
 selectedDate.toLocaleDateString(
@@ -2109,7 +3290,8 @@ title.innerHTML =
 "Timepriser " +
 weekday;
 
-} else {
+}
+else {
 
 title.innerHTML =
 "Timepriser " +
@@ -2117,7 +3299,9 @@ weekday +
 ' <span class="forecast-text">' +
 '(Prognose)' +
 '</span>';
+
 }
+
 }
 
 date.textContent =
@@ -2154,6 +3338,7 @@ bar.classList.remove(
 "four-hour-selected",
 "single-hour-selected"
 );
+
 }
 );
 
@@ -2192,7 +3377,9 @@ if (bars[index]) {
 bars[index].classList.add(
 "single-hour-selected"
 );
+
 }
+
 }
 
 if (
@@ -2210,7 +3397,9 @@ if (bars[index]) {
 bars[index].classList.add(
 "single-hour-selected"
 );
+
 }
+
 }
 
 if (
@@ -2235,8 +3424,11 @@ if (bars[hour]) {
 bars[hour].classList.add(
 "four-hour-selected"
 );
+
 }
+
 }
+
 }
 
 if (
@@ -2254,10 +3446,14 @@ bars[hour]
 bars[hour].classList.add(
 "four-hour-selected"
 );
+
 }
+
 }
 );
+
 }
+
 }
 
 
@@ -2282,8 +3478,10 @@ selectionMode === "min"
 
 updateSelectedStat();
 applySelection();
+
 }
 );
+
 
 document
 .getElementById("maxStat")
@@ -2302,8 +3500,10 @@ selectionMode === "max"
 
 updateSelectedStat();
 applySelection();
+
 }
 );
+
 
 document
 .getElementById("fourHourStat")
@@ -2322,8 +3522,10 @@ selectionMode === "four"
 
 updateSelectedStat();
 applySelection();
+
 }
 );
+
 
 document
 .getElementById("kwhStat")
@@ -2342,6 +3544,7 @@ selectionMode === "kwh"
 
 updateSelectedStat();
 applySelection();
+
 }
 );
 
@@ -2438,6 +3641,7 @@ bar.classList.remove(
 "four-hour-selected",
 "single-hour-selected"
 );
+
 }
 );
 
@@ -2499,7 +3703,8 @@ selectedBar.appendChild(
 label
 );
 
-} else {
+}
+else {
 
 label.classList.add(
 "negative-price"
@@ -2532,6 +3737,7 @@ document
 .appendChild(
 label
 );
+
 }
 
 lastTouchedHour =
@@ -2574,6 +3780,7 @@ catch (error) {}
 passive: false
 }
 );
+
 
 chartElement.addEventListener(
 "pointermove",
@@ -2624,6 +3831,7 @@ event.pointerId
 
 }
 catch (error) {}
+
 }
 
 
@@ -2660,22 +3868,19 @@ null;
    ========================================================= */
 
 document
-.getElementById(
-"todayButton"
-)
+.getElementById("todayButton")
 .addEventListener(
 "click",
 function() {
 
 selectDay(0);
+
 }
 );
 
 
 document
-.getElementById(
-"tomorrowButton"
-)
+.getElementById("tomorrowButton")
 .addEventListener(
 "click",
 function() {
@@ -2688,18 +3893,19 @@ selectDay(
 activeDayIndex
 );
 
-} else {
+}
+else {
 
 selectDay(1);
+
 }
+
 }
 );
 
 
 document
-.getElementById(
-"nextDayButton"
-)
+.getElementById("nextDayButton")
 .addEventListener(
 "click",
 function() {
@@ -2712,7 +3918,9 @@ MAX_DAYS_FORWARD
 selectDay(
 activeDayIndex + 1
 );
+
 }
+
 }
 );
 
@@ -2763,6 +3971,7 @@ clearSelection();
 updateSelectedStat();
 
 applySelection();
+
 }
 );
 
@@ -2824,42 +4033,96 @@ error
 function render() {
 
 updateDayButtons();
+
 updateHeaderText();
+
 updateInformation();
+
 renderChart();
+
+updateDisplayedTariffInformation();
+
+/*
+ * Den nye sektion beregnes separat.
+ */
+
+calculateAllSevenDays();
+
 }
 
 
 /* =========================================================
-   PROGNOSE OPDATERING
+   LIVE DATA OPDATERING
    ========================================================= */
 
-function startForecastRefresh() {
+async function refreshLiveData() {
 
 if (
-forecastRefreshTimer
-) {
-
-clearInterval(
-forecastRefreshTimer
-);
-}
-
-forecastRefreshTimer =
-setInterval(
-async function() {
-
-if (
-activeDayIndex === 0
+dataRefreshInProgress
 ) {
 
 return;
 }
 
+dataRefreshInProgress =
+true;
+
 try {
 
-apiDays =
+/*
+ * Grafens eksisterende forecast-kald.
+ */
+
+const newDays =
 await loadForecastData();
+
+
+/*
+ * Separat forecast-kald til den nye sektion.
+ */
+
+const newTariffForecastDays =
+await loadTariffForecastData();
+
+
+const newDataSignature =
+createDataSignature(
+newDays
+);
+
+const newSelectedDay =
+newDays[
+activeDayIndex
+];
+
+const newSelectedDaySignature =
+createDaySignature(
+newSelectedDay
+);
+
+const dataChanged =
+newDataSignature !==
+lastDataSignature;
+
+const selectedDayChanged =
+newSelectedDaySignature !==
+lastSelectedDaySignature;
+
+const newHour =
+new Date().getHours();
+
+const hourChanged =
+newHour !==
+lastKnownHour;
+
+apiDays =
+newDays;
+
+tariffForecastDays =
+newTariffForecastDays;
+
+currentHour =
+newHour;
 
 if (
 activeDayIndex >
@@ -2870,19 +4133,148 @@ activeDayIndex =
 MAX_DAYS_FORWARD;
 }
 
+const todayPrices =
+extractDayPrices(
+apiDays[0]
+);
+
+let newCurrentPrice =
+currentPrice;
+
+if (
+todayPrices.length === 24
+) {
+
+newCurrentPrice =
+todayPrices[
+currentHour
+];
+
+}
+
+const currentPriceChanged =
+newCurrentPrice !==
+currentPrice;
+
+currentPrice =
+newCurrentPrice;
+
+lastDataSignature =
+newDataSignature;
+
+lastSelectedDaySignature =
+createDaySignature(
+apiDays[
+activeDayIndex
+]
+);
+
+lastKnownHour =
+newHour;
+
+
+/*
+ * Spotdata ændret.
+ * Gamle beregninger må ikke genbruges.
+ */
+
+if (
+dataChanged
+) {
+
+apiDays.forEach(
+day => {
+
+if (day) {
+
+delete day._tariffCalculation;
+
+}
+
+});
+
+}
+
+
+if (
+selectedDayChanged
+) {
+
 render();
+
+}
+else if (
+hourChanged
+) {
+
+updateInformation();
+
+updateCurrentHourVisual();
+
+updateDisplayedTariffInformation();
+
+await calculateAllSevenDays();
+
+}
+else if (
+currentPriceChanged
+) {
+
+updateInformation();
+
+}
+
+if (
+dataChanged
+) {
+
+updateDayButtons();
+
+await calculateAllSevenDays();
+
+}
 
 }
 catch (error) {
 
 console.error(
+"Live data refresh fejl:",
 error
 );
+
+}
+finally {
+
+dataRefreshInProgress =
+false;
+
 }
 
-},
-FORECAST_REFRESH_MS
+}
+
+
+/* =========================================================
+   START LIVE DATA REFRESH
+   ========================================================= */
+
+function startDataRefresh() {
+
+if (
+dataRefreshTimer
+) {
+
+clearInterval(
+dataRefreshTimer
 );
+
+}
+
+dataRefreshTimer =
+setInterval(
+refreshLiveData,
+DATA_REFRESH_MS
+);
+
 }
 
 
@@ -2894,12 +4286,34 @@ async function initialize() {
 
 try {
 
+/*
+ * GRAFENS DATA.
+ *
+ * Dette kald er UÆNDRET:
+ *
+ * /forecast?area=DK1&mode=spot_inkl
+ */
+
 apiDays =
 await loadForecastData();
+
+
+/*
+ * NY SEKTION:
+ *
+ * /forecast?area=DK1&mode=inkl_alt
+ */
+
+tariffForecastDays =
+await loadTariffForecastData();
+
 
 currentHour =
 new Date()
 .getHours();
+
+lastKnownHour =
+currentHour;
 
 const todayPrices =
 extractDayPrices(
@@ -2914,11 +4328,24 @@ currentPrice =
 todayPrices[
 currentHour
 ];
+
 }
+
+lastDataSignature =
+createDataSignature(
+apiDays
+);
+
+lastSelectedDaySignature =
+createDaySignature(
+apiDays[
+activeDayIndex
+]
+);
 
 render();
 
-startForecastRefresh();
+startDataRefresh();
 
 }
 catch (error) {
@@ -2930,7 +4357,9 @@ error
 showLoadError(
 "Kunne ikke hente elpriser"
 );
+
 }
+
 }
 
 
