@@ -121,6 +121,13 @@ color: #8493a9;
 font-weight: 700;
 font-size: 13px;
 cursor: pointer;
+
+/* Forhindrer browseren i at fortolke
+   hurtige tryk som zoom/gesture */
+touch-action: manipulation;
+-webkit-user-select: none;
+user-select: none;
+-webkit-tap-highlight-color: transparent;
 }
 
 .day.active {
@@ -3650,6 +3657,8 @@ hour,
 prices[hour],
 selectedBar
 );
+
+
 }
 
 
