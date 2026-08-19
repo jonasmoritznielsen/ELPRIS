@@ -13,6 +13,28 @@
 box-sizing: border-box;
 }
 
+/* =========================================================
+   FORHINDR DOBBELTKLIK-ZOOM PÅ HELE SIDEN
+   ========================================================= */
+
+html,
+body {
+touch-action: manipulation;
+}
+
+button,
+a,
+.logo,
+.status,
+.day,
+.stat {
+touch-action: manipulation;
+}
+
+/* =========================================================
+   GRUNDLAG
+   ========================================================= */
+
 html,
 body {
 margin: 0;
@@ -20,15 +42,6 @@ padding: 0;
 width: 100%;
 min-height: 100%;
 background: #07111f;
-
-/*
- * FORHINDRER BROWSER-ZOOM VED HURTIGE/DOBBELTE TRYK
- * PÅ HELE SIDEN.
- *
- * Dette påvirker ikke grafens pointer-events,
- * fordi .chart fortsat håndterer sine egne pointer-events.
- */
-touch-action: manipulation;
 }
 
 body {
@@ -39,7 +52,6 @@ BlinkMacSystemFont,
 "SF Pro Display",
 "Segoe UI",
 sans-serif;
-touch-action: manipulation;
 }
 
 .app {
@@ -50,8 +62,6 @@ padding-top: calc(env(safe-area-inset-top) + 12px);
 padding-left: 16px;
 padding-right: 16px;
 padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
-
-touch-action: manipulation;
 }
 
 /* =========================================================
@@ -107,7 +117,6 @@ font-weight: 700;
 white-space: nowrap;
 cursor: pointer;
 font-family: inherit;
-touch-action: manipulation;
 }
 
 /* =========================================================
@@ -122,7 +131,6 @@ padding: 4px;
 background: #101d30;
 border: 1px solid #20314a;
 border-radius: 15px;
-touch-action: manipulation;
 }
 
 .day {
@@ -135,7 +143,6 @@ color: #8493a9;
 font-weight: 700;
 font-size: 13px;
 cursor: pointer;
-touch-action: manipulation;
 }
 
 .day.active {
@@ -212,11 +219,6 @@ position: relative;
 width: 100%;
 height: 220px;
 overflow: visible;
-
-/*
- * Grafen skal fortsat kunne modtage pointer events,
- * så drag/valg af timer fungerer.
- */
 touch-action: none;
 }
 
@@ -542,8 +544,6 @@ background .18s ease,
 border-color .18s ease,
 box-shadow .18s ease,
 transform .12s ease;
-
-touch-action: manipulation;
 }
 
 .stat:active {
@@ -1175,11 +1175,6 @@ let tariffForecastDays = [];
 const tariffCache =
 new Map();
 
-
-/* =========================================================
-   DATA
-   ========================================================= */
-
 let apiDays = [];
 
 let activeDayIndex = 0;
@@ -1460,8 +1455,7 @@ Number.isFinite(value)
 
 
 /* =========================================================
-   NY SEKTION:
-   FIND FORECAST INKL_ALT FOR SAMME DATO
+   FIND FORECAST INKL_ALT
    ========================================================= */
 
 function findTariffForecastDay(
@@ -3515,8 +3509,6 @@ hour,
 prices[hour],
 selectedBar
 );
-
-
 }
 
 
