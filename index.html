@@ -20,6 +20,15 @@ padding: 0;
 width: 100%;
 min-height: 100%;
 background: #07111f;
+
+/*
+ * FORHINDRER BROWSER-ZOOM VED HURTIGE/DOBBELTE TRYK
+ * PÅ HELE SIDEN.
+ *
+ * Dette påvirker ikke grafens pointer-events,
+ * fordi .chart fortsat håndterer sine egne pointer-events.
+ */
+touch-action: manipulation;
 }
 
 body {
@@ -30,6 +39,7 @@ BlinkMacSystemFont,
 "SF Pro Display",
 "Segoe UI",
 sans-serif;
+touch-action: manipulation;
 }
 
 .app {
@@ -40,6 +50,8 @@ padding-top: calc(env(safe-area-inset-top) + 12px);
 padding-left: 16px;
 padding-right: 16px;
 padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+
+touch-action: manipulation;
 }
 
 /* =========================================================
@@ -95,6 +107,7 @@ font-weight: 700;
 white-space: nowrap;
 cursor: pointer;
 font-family: inherit;
+touch-action: manipulation;
 }
 
 /* =========================================================
@@ -109,6 +122,7 @@ padding: 4px;
 background: #101d30;
 border: 1px solid #20314a;
 border-radius: 15px;
+touch-action: manipulation;
 }
 
 .day {
@@ -121,13 +135,7 @@ color: #8493a9;
 font-weight: 700;
 font-size: 13px;
 cursor: pointer;
-
-/* Forhindrer browseren i at fortolke
-   hurtige tryk som zoom/gesture */
 touch-action: manipulation;
--webkit-user-select: none;
-user-select: none;
--webkit-tap-highlight-color: transparent;
 }
 
 .day.active {
@@ -204,6 +212,11 @@ position: relative;
 width: 100%;
 height: 220px;
 overflow: visible;
+
+/*
+ * Grafen skal fortsat kunne modtage pointer events,
+ * så drag/valg af timer fungerer.
+ */
 touch-action: none;
 }
 
@@ -529,6 +542,8 @@ background .18s ease,
 border-color .18s ease,
 box-shadow .18s ease,
 transform .12s ease;
+
+touch-action: manipulation;
 }
 
 .stat:active {
@@ -1146,38 +1161,6 @@ const DATA_REFRESH_MS =
    NY PRISBEREGNING
    ========================================================= */
 
-/*
- * GRAFEN BRUGER STADIG API_MODE = spot_inkl.
- *
- * Den nye beregning bruger sit EGET forecast-kald:
- *
- * https://elpriser.org/api/forecast?area=DK1&mode=inkl_alt
- *
- * Denne pris er den pris inkl. afgifter.
- *
- * Rå flowtariff:
- *
- * https://elpriser.org/api/raw/tariff
- * ?gln=5790000392551
- * &date=YYYY-MM-DD
- *
- * Rå tariff er ekskl. moms.
- *
- * Regnestykket pr. time:
- *
- * forecast inkl_alt
- * + (rå tariff * 1.25)
- * + 0.025
- *
- * Derefter:
- *
- * total pris pr. kWh * 11 kWh
- *
- * Kun timer hvor SPOTPRISEN i grafens
- * eksisterende spotdata er <= 25 øre
- * medregnes.
- */
-
 const TARIFF_GLN =
 "5790000392551";
 
@@ -1187,22 +1170,7 @@ const VAT =
 const SUPPLIER_SURCHARGE_INCL_VAT =
 0.025;
 
-
-/*
- * Separat forecast-datasæt til den nye sektion.
- *
- * Dette påvirker IKKE grafen.
- */
-
 let tariffForecastDays = [];
-
-
-/*
- * Cache til rå tariff.
- *
- * key = dato
- * value = 24 rå tariffer i DKK/kWh
- */
 
 const tariffCache =
 new Map();
@@ -1280,13 +1248,6 @@ return data.days;
    API - NY SEKTION
    FORECAST INKL_ALT
    ========================================================= */
-
-/*
- * Dette kald er KUN til den nye sektion.
- *
- * Grafen bruger fortsat loadForecastData()
- * ovenfor med spot_inkl.
- */
 
 async function loadTariffForecastData() {
 
@@ -1379,11 +1340,6 @@ data
 return [];
 }
 
-
-/*
- * Find record for den konkrete dato.
- */
-
 let record =
 data.records.find(
 item => {
@@ -1412,14 +1368,6 @@ data.records[0];
 if (!record) {
 return [];
 }
-
-
-/*
- * Price1 = 00:00
- * Price2 = 01:00
- * ...
- * Price24 = 23:00
- */
 
 const tariffs = [];
 
@@ -1537,13 +1485,6 @@ day.date === date
 ) || null;
 }
 
-
-/*
- * Forecast inkl_alt returneres i kr/kWh.
- *
- * Denne funktion gør IKKE noget ved grafens
- * spotpriser.
- */
 
 function extractForecastInclAltPrices(
 day
@@ -2449,13 +2390,6 @@ applySelection();
    PRISBEREGNING
    ========================================================= */
 
-/*
- * Kvalificerende timer bestemmes stadig
- * ud fra GRAFENS spotpris.
- *
- * Spotpris <= 25 øre.
- */
-
 function getQualifyingHours(
 prices
 ) {
@@ -2477,21 +2411,6 @@ hours.push(hour);
 return hours;
 }
 
-
-/*
- * NYT REGNESTYKKE
- *
- * forecast inkl_alt
- * + (rå tariff * 1.25)
- * + 0.025
- *
- * Bemærk:
- *
- * forecast inkl_alt returneres i KR/kWh.
- *
- * rå tariff returneres i KR/kWh
- * ekskl. moms.
- */
 
 function getHourTotalPrice(
 forecastInclAltPrices,
@@ -2671,12 +2590,6 @@ spotPrices.length !== 24
 return null;
 }
 
-
-/*
- * FIND FORECAST INKL_ALT FOR
- * PRÆCIS SAMME DATO.
- */
-
 const tariffForecastDay =
 findTariffForecastDay(
 day.date
@@ -2710,11 +2623,6 @@ forecastInclAltPrices
 return null;
 }
 
-
-/*
- * Hent rå tariff for PRÆCIS DENNE DATO.
- */
-
 const rawTariffs =
 await loadTariffsForDate(
 day.date
@@ -2732,11 +2640,6 @@ rawTariffs
 
 return null;
 }
-
-
-/*
- * Kun timer med spot <= 25 øre.
- */
 
 const qualifyingHours =
 getQualifyingHours(
@@ -2796,19 +2699,6 @@ apiDays.slice(
 MAX_DAYS_FORWARD + 1
 );
 
-
-/*
- * Hver dag sendes separat til
- * calculateDayTariffData().
- *
- * Funktionen bruger:
- *
- * day.date
- *
- * til både forecast-opslag og
- * tariff-opslag.
- */
-
 const results =
 await Promise.all(
 days.map(
@@ -2816,11 +2706,6 @@ day =>
 calculateDayTariffData(day)
 )
 );
-
-
-/*
- * Gem resultatet på den konkrete dag.
- */
 
 results.forEach(
 (result, index) => {
@@ -2836,7 +2721,6 @@ result;
 }
 
 });
-
 
 updateDisplayedTariffInformation();
 }
@@ -2888,11 +2772,6 @@ document.getElementById(
 hoursUnder25
 );
 
-
-/*
- * Ingen kvalificerende timer.
- */
-
 if (
 hoursUnder25 === 0
 ) {
@@ -2928,14 +2807,8 @@ document
 return;
 }
 
-
 const calculation =
 day._tariffCalculation;
-
-
-/*
- * Data mangler stadig.
- */
 
 if (
 !calculation ||
@@ -2969,16 +2842,11 @@ document
 .getElementById(
 "tv2Subtext"
 )
-.textContent =
+textContent =
 "afventer data";
 
 return;
 }
-
-
-/*
- * PRIS I ALT
- */
 
 document
 .getElementById(
@@ -3000,11 +2868,6 @@ hoursUnder25 === 1
 ? " time á 11 kWh"
 : " timer á 11 kWh"
 );
-
-
-/*
- * TV 2
- */
 
 if (
 Number.isFinite(
@@ -3048,11 +2911,6 @@ document
 
 }
 
-
-/*
- * Behold dette navn, så resten af
- * appens logik fungerer uændret.
- */
 
 async function updateTariffInformation() {
 
@@ -4051,10 +3909,6 @@ renderChart();
 
 updateDisplayedTariffInformation();
 
-/*
- * Den nye sektion beregnes separat.
- */
-
 calculateAllSevenDays();
 
 }
@@ -4078,21 +3932,11 @@ true;
 
 try {
 
-/*
- * Grafens eksisterende forecast-kald.
- */
-
 const newDays =
 await loadForecastData();
 
-
-/*
- * Separat forecast-kald til den nye sektion.
- */
-
 const newTariffForecastDays =
 await loadTariffForecastData();
-
 
 const newDataSignature =
 createDataSignature(
@@ -4181,12 +4025,6 @@ activeDayIndex
 lastKnownHour =
 newHour;
 
-
-/*
- * Spotdata ændret.
- * Gamle beregninger må ikke genbruges.
- */
-
 if (
 dataChanged
 ) {
@@ -4203,7 +4041,6 @@ delete day._tariffCalculation;
 });
 
 }
-
 
 if (
 selectedDayChanged
@@ -4295,27 +4132,11 @@ async function initialize() {
 
 try {
 
-/*
- * GRAFENS DATA.
- *
- * Dette kald er UÆNDRET:
- *
- * /forecast?area=DK1&mode=spot_inkl
- */
-
 apiDays =
 await loadForecastData();
 
-
-/*
- * NY SEKTION:
- *
- * /forecast?area=DK1&mode=inkl_alt
- */
-
 tariffForecastDays =
 await loadTariffForecastData();
-
 
 currentHour =
 new Date()
