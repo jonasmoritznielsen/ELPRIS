@@ -13,28 +13,6 @@
 box-sizing: border-box;
 }
 
-/* =========================================================
-   FORHINDR DOBBELTKLIK-ZOOM PÅ HELE SIDEN
-   ========================================================= */
-
-html,
-body {
-touch-action: manipulation;
-}
-
-button,
-a,
-.logo,
-.status,
-.day,
-.stat {
-touch-action: manipulation;
-}
-
-/* =========================================================
-   GRUNDLAG
-   ========================================================= */
-
 html,
 body {
 margin: 0;
@@ -155,9 +133,14 @@ flex: 0 0 42px;
 transition: opacity .2s ease;
 }
 
+/*
+ * PILEN ER ALTID AKTIV.
+ * Den toner ikke længere ud på sidste dag.
+ */
+
 .day-next.disabled {
-opacity: .25;
-cursor: default;
+opacity: 1;
+cursor: pointer;
 }
 
 /* =========================================================
@@ -1241,7 +1224,6 @@ return data.days;
 
 /* =========================================================
    API - NY SEKTION
-   FORECAST INKL_ALT
    ========================================================= */
 
 async function loadTariffForecastData() {
@@ -1455,7 +1437,7 @@ Number.isFinite(value)
 
 
 /* =========================================================
-   FIND FORECAST INKL_ALT
+   FORECAST INKL_ALT
    ========================================================= */
 
 function findTariffForecastDay(
@@ -1691,15 +1673,20 @@ tomorrowButton.classList.toggle(
 activeDayIndex >= 1
 );
 
-nextButton.classList.toggle(
-"disabled",
-activeDayIndex >=
-MAX_DAYS_FORWARD
+
+/*
+ * PILEN ER ALTID AKTIV.
+ *
+ * Den må ikke disables eller tones ud,
+ * fordi næste tryk på sidste dag skal
+ * føre tilbage til "I dag".
+ */
+
+nextButton.classList.remove(
+"disabled"
 );
 
-nextButton.disabled =
-activeDayIndex >=
-MAX_DAYS_FORWARD;
+nextButton.disabled = false;
 }
 
 
@@ -3509,6 +3496,8 @@ hour,
 prices[hour],
 selectedBar
 );
+
+
 }
 
 
@@ -3763,20 +3752,43 @@ selectDay(1);
 );
 
 
+/*
+ * NY NAVIGATION:
+ *
+ * Pilen er altid aktiv.
+ *
+ * Hvis der findes en næste dag:
+ *     gå én dag frem.
+ *
+ * Hvis vi står på sidste dag:
+ *     hop tilbage til I dag.
+ */
+
 document
 .getElementById("nextDayButton")
 .addEventListener(
 "click",
-function() {
+function(event) {
+
+event.preventDefault();
+event.stopPropagation();
+
+const nextIndex =
+activeDayIndex + 1;
 
 if (
-activeDayIndex <
-MAX_DAYS_FORWARD
+nextIndex <= MAX_DAYS_FORWARD &&
+apiDays[nextIndex]
 ) {
 
 selectDay(
-activeDayIndex + 1
+nextIndex
 );
+
+}
+else {
+
+selectDay(0);
 
 }
 
@@ -3975,7 +3987,17 @@ MAX_DAYS_FORWARD
 ) {
 
 activeDayIndex =
-MAX_DAYS_FORWARD;
+0;
+
+}
+
+if (
+!apiDays[activeDayIndex]
+) {
+
+activeDayIndex =
+0;
+
 }
 
 const todayPrices =
