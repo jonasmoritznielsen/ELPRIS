@@ -408,8 +408,8 @@ rgba(255,255,255,.95),
 0 0 14px
 rgba(255,255,255,.30);
 }
-.chart.selection-mode .bar\:not(.four-hour-selected)\:not(.single-hour-selected) {
-opacity: .38;
+.chart.selection-mode .bar:not(.four-hour-selected):not(.single-hour-selected) {
+    opacity: .38;
 }
 .chart.selection-mode .bar.four-hour-selected,
 .chart.selection-mode .bar.single-hour-selected {
@@ -2693,42 +2693,60 @@ return;
 chart.classList.add(
 "selection-mode"
 );
-const prices =
+
+/*
+ * LAV, HØJ og BILLIGSTE 4 TIMER
+ * bruger samme grafpriser som statistikkerne.
+ */
+const graphPrices =
 extractGraphPrices(
 getSelectedDay()
 );
+
+/*
+ * KWH MAX 25 ØRE bruger samme grundlag som
+ * selve KWH-beregningen: de rå /prices-værdier
+ * uden de ekstra 2,5 øre.
+ */
+const basePrices =
+extractDayPrices(
+getSelectedDay()
+);
+
 if (
 selectionMode === "min"
 ) {
 const min =
-Math.min(...prices);
+Math.min(...graphPrices);
 const index =
-prices.indexOf(min);
+graphPrices.indexOf(min);
 if (bars[index]) {
 bars[index].classList.add(
 "single-hour-selected"
 );
 }
 }
+
 if (
 selectionMode === "max"
 ) {
 const max =
-Math.max(...prices);
+Math.max(...graphPrices);
 const index =
-prices.indexOf(max);
+graphPrices.indexOf(max);
 if (bars[index]) {
 bars[index].classList.add(
 "single-hour-selected"
 );
 }
 }
+
 if (
 selectionMode === "four"
 ) {
 const cheapest =
 findCheapestFourHours(
-prices
+graphPrices
 );
 for (
 let hour =
@@ -2744,10 +2762,11 @@ bars[hour].classList.add(
 }
 }
 }
+
 if (
 selectionMode === "kwh"
 ) {
-prices.forEach(
+basePrices.forEach(
 (price, hour) => {
 if (
 price <= 25 &&
