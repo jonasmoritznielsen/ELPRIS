@@ -409,7 +409,7 @@ rgba(255,255,255,.95),
 rgba(255,255,255,.30);
 }
 .chart.selection-mode .bar:not(.four-hour-selected):not(.single-hour-selected) {
-    opacity: .38;
+opacity: .38;
 }
 .chart.selection-mode .bar.four-hour-selected,
 .chart.selection-mode .bar.single-hour-selected {
@@ -948,7 +948,9 @@ class="kpi-value"
 id="kwhUnder25">
 -
 </div>
-<div class="kpi-subtext placeholder">
+<div
+class="kpi-subtext"
+id="kwhSubtext">
 &nbsp;
 </div>
 </div>
@@ -2260,12 +2262,20 @@ calculateTv2Cost(
 spotPrices,
 rawTariffs
 );
+const totalKwh =
+qualifyingHours.length * 11;
+
+const averagePriceOre =
+Number.isFinite(totalCost) && totalKwh > 0
+? (totalCost / totalKwh) * 100
+: null;
+
 return {
 date: day.date,
 qualifyingHours,
-kwh:
-qualifyingHours.length * 11,
+kwh: totalKwh,
 totalCost,
+averagePriceOre,
 tv2Cost
 };
 }
@@ -2349,13 +2359,19 @@ document
 "-";
 document
 .getElementById(
+"priceInTotalSubtext"
+)
+.textContent =
+"\u00a0";
+document
+.getElementById(
 "tv2Cost"
 )
 .textContent =
 "-";
 document
 .getElementById(
-"priceInTotalSubtext"
+"kwhSubtext"
 )
 .textContent =
 "\u00a0";
@@ -2409,9 +2425,25 @@ document
 formatKroner(
 calculation.totalCost
 );
+
 document
 .getElementById(
 "priceInTotalSubtext"
+)
+.textContent =
+Number.isFinite(calculation.averagePriceOre)
+? calculation.averagePriceOre.toLocaleString(
+"da-DK",
+{
+minimumFractionDigits: 2,
+maximumFractionDigits: 2
+}
+) + " øre/kWh inkl. alt"
+: "-";
+
+document
+.getElementById(
+"kwhSubtext"
 )
 .textContent =
 hoursUnder25 +
@@ -2438,7 +2470,7 @@ document
 "tv2Subtext"
 )
 .textContent =
-"Gennemsnit 17 kWh";
+"17 kWh forbrug";
 }
 else {
 document
